@@ -7,6 +7,10 @@ public class UserMapper
 {
     public static UserDto mapInternal(User user)
     {
-        return new UserDto(user.getId(), user.getEmail());
+        return UserDto.builder()
+                .withId(user.getId())
+                .withEmail(user.getEmail())
+                .withPassword(user.getPassword())
+                .build();
     }
 }

@@ -13,6 +13,7 @@
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
+
     <modules>
         <module>site-api</module>
         <module>site-impl</module>

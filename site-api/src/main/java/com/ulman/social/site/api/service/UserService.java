@@ -8,7 +8,7 @@ public interface UserService
 {
     List<UserDto> getUsers();
     void addUser(UserDto userDto);
-    UserDto getUser();
+    UserDto getUser(String id);
     void updateUser(UserDto userDto);
     List<UserDto> getFollowers(String id);
     List<UserDto> getFollowing(String id);
