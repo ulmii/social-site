@@ -3,17 +3,14 @@ package com.ulman.social.site.impl.domain;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
+import com.ulman.social.site.impl.error.exception.UserAlreadyExistsException;
 import com.ulman.social.site.impl.model.db.User;
 import com.ulman.social.site.impl.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,9 +38,9 @@ public class UserServiceImpl implements UserService
     @Override
     public void addUser(UserDto userDto)
     {
-        if(accountExists(userDto.getId()))
+        if (accountExists(userDto.getId()))
         {
-            throw new RuntimeException();
+            throw new UserAlreadyExistsException(String.format("User with id: %s already exists", userDto.getId()));
         }
 
         userRepository.save(User.builder()
@@ -60,7 +57,7 @@ public class UserServiceImpl implements UserService
         String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = userRepository.findByEmail(principal).getId();
 
-        if(userId.equals(id))
+        if (userId.equals(id))
         {
             return UserMapper.mapInternal(userRepository.findById(id).get());
         }

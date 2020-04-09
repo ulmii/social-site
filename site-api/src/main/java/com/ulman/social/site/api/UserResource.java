@@ -4,7 +4,6 @@ import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.validation.Valid;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -18,7 +17,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-@Named
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/users")
 public class UserResource
@@ -38,11 +36,9 @@ public class UserResource
     }
 
     @POST
-    @Path("/sign-up")
-    public Response addUser(@Valid UserDto userDto)
+    public void addUser(@Valid UserDto userDto)
     {
         userService.addUser(userDto);
-        return Response.status(Response.Status.OK).build();
     }
 
     @GET

@@ -12,6 +12,7 @@ public class JerseyResourceConfig extends ResourceConfig
 {
     public JerseyResourceConfig()
     {
+        packages("com.ulman.social.site");
         register(UserResource.class);
     }
 }

@@ -1,12 +1,11 @@
 package com.ulman.social.site.api.model;
 
-import com.ulman.social.site.api.validation.PasswordMatches;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.ws.rs.DefaultValue;
 
 @Data
@@ -14,15 +13,12 @@ import javax.ws.rs.DefaultValue;
 @AllArgsConstructor
 public class UserDto
 {
-    @NotNull
-    @NotEmpty
+    @NotBlank
     private String id;
     private String name;
-    @NotNull
-    @NotEmpty
+    @Email
     private String email;
-    @NotNull
-    @NotEmpty
+    @NotBlank
     private String password;
     private String photo;
     private String description;

@@ -2,7 +2,6 @@ package com.ulman.social.site.api.validation;
 
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
-import com.ulman.social.site.api.validation.PasswordMatches;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -21,8 +20,8 @@ public class PasswordMatchesValidator
     public boolean isValid(Object obj, ConstraintValidatorContext context)
     {
         UserDto user = (UserDto) obj;
-//        UserDto = userService.getUser(user.getId());
-//        return user.getPassword().equals(user.getMatchingPassword());
+        //        UserDto = userService.getUser(user.getId());
+        //        return user.getPassword().equals(user.getMatchingPassword());
         return true;
     }
 }
