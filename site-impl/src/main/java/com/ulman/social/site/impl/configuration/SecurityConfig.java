@@ -17,36 +17,36 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.ws.rs.HttpMethod;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter
 {
     private UserDetailsService userDetailsService;
     private PasswordEncoder passwordEncoder;
+    private EnvironmentProperties environmentProperties;
 
     @Autowired
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder)
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder, EnvironmentProperties environmentProperties)
     {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.environmentProperties = environmentProperties;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception
     {
-        http.cors().and().csrf().disable()
-                .addFilter(new JWTAuthenticationFilter(authenticationManager()))
+        http.cors()
+                .and().csrf().disable()
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(), environmentProperties))
                 .addFilter(new JWTAuthorizationFilter(authenticationManager()))
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/users")
+                .antMatchers("/api/v1/users", "/api/v1/users/**")
                 .permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()
                 .and()
-
                 // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -54,7 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception
     {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        auth.userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder);
     }
 
     @Bean

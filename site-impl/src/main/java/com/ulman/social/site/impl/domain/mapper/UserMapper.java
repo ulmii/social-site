@@ -9,8 +9,20 @@ public class UserMapper
     {
         return UserDto.builder()
                 .withId(user.getId())
+                .withName(user.getName())
                 .withEmail(user.getEmail())
                 .withPassword(user.getPassword())
+                .withPhoto(user.getPhoto())
+                .withDescription(user.getDescription())
+                .withPublicProfile(user.getPublicProfile())
                 .build();
+    }
+
+    public static UserDto maskSensitive(UserDto userDto)
+    {
+        userDto.setEmail(null);
+        userDto.setPassword(null);
+
+        return userDto;
     }
 }

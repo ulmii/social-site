@@ -3,7 +3,8 @@ package com.ulman.social.site.impl.domain;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
-import com.ulman.social.site.impl.error.exception.UserAlreadyExistsException;
+import com.ulman.social.site.impl.error.exception.user.UserAlreadyExistsException;
+import com.ulman.social.site.impl.error.exception.user.UserDoesntExistException;
 import com.ulman.social.site.impl.model.db.User;
 import com.ulman.social.site.impl.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.ulman.social.site.impl.domain.mapper.UserMapper.mapInternal;
 
 @Service
 public class UserServiceImpl implements UserService
@@ -32,67 +37,131 @@ public class UserServiceImpl implements UserService
     {
         return userRepository.findAll().stream()
                 .map(UserMapper::mapInternal)
+                .map(UserMapper::maskSensitive)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void addUser(UserDto userDto)
+    public UserDto addUser(UserDto userDto)
     {
         if (accountExists(userDto.getId()))
         {
-            throw new UserAlreadyExistsException(String.format("User with id: %s already exists", userDto.getId()));
+            throw new UserAlreadyExistsException(String.format("User with id: [%s] already exists", userDto.getId()));
+        }
+        else if (emailExists(userDto.getEmail()))
+        {
+            throw new UserAlreadyExistsException(String.format("User with email: [%s] already exists", userDto.getEmail()));
         }
 
-        userRepository.save(User.builder()
+        return mapInternal(userRepository.save(User.builder()
                 .withId(userDto.getId())
+                .withName(userDto.getName())
                 .withEmail(userDto.getEmail())
                 .withPassword(passwordEncoder.encode(userDto.getPassword()))
-                .withPublicProfile(userDto.isPublicProfile())
-                .build());
+                .withPhoto(userDto.getPhoto())
+                .withDescription(userDto.getDescription())
+                .withPublicProfile(Objects.requireNonNullElse(userDto.getPublicProfile(), true))
+                .build()));
     }
 
     @Override
     public UserDto getUser(String id)
     {
-        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userId = userRepository.findByEmail(principal).getId();
+        Optional<User> loggedUser = getLoggedUser();
+        Optional<User> userFromRepository = userRepository.findById(id);
 
-        if (userId.equals(id))
+        if (userFromRepository.isPresent())
         {
-            return UserMapper.mapInternal(userRepository.findById(id).get());
+            UserDto userDto = mapInternal(userFromRepository.get());
+            if (loggedUser.isPresent() && loggedUser.get().getId().equals(id))
+            {
+                return userDto;
+            }
+            else
+            {
+                return UserMapper.maskSensitive(userDto);
+            }
         }
         else
         {
-            throw new RuntimeException();
+            throw new UserDoesntExistException(String.format("User with id: [%s] does not exist", id));
         }
     }
 
     @Override
-    public void updateUser(UserDto userDto)
-    {
-
-    }
-
-    @Override
-    public List<UserDto> getFollowers(String id)
+    public UserDto updateUser(String id)
     {
         return null;
     }
 
     @Override
-    public List<UserDto> getFollowing(String id)
+    public List<String> getFollowers(String id)
     {
         return null;
     }
 
     @Override
-    public void addFollower(String id, String id2)
+    public List<String> getFollowing(String id)
     {
+        return null;
+    }
 
+    @Override
+    public List<String> addFollower(String id, String id2)
+    {
+        return null;
+    }
+
+    @Override
+    public List<String> deleteFollower(String id, String id2)
+    {
+        return null;
+    }
+
+    @Override
+    public List<UserDto> getHidden(String id)
+    {
+        return null;
+    }
+
+    @Override
+    public List<UserDto> updateHidden(String id, String type)
+    {
+        return null;
+    }
+
+    @Override
+    public List<String> getSaved(String id)
+    {
+        return null;
+    }
+
+    @Override
+    public List<String> updateSaved(String id, String type)
+    {
+        return null;
     }
 
     private boolean accountExists(String id)
     {
         return userRepository.findById(id).isPresent();
+    }
+
+    private boolean emailExists(String email)
+    {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    private boolean isFollowing(String id)
+    {
+        return true;
+    }
+
+    private Optional<User> getLoggedUser()
+    {
+        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> user = userRepository.findByEmail(principal);
+
+        return user;
     }
 }
