@@ -4,20 +4,5 @@
       "name": "db.url",
       "type": "java.lang.String",
       "description": "Configuration key for the database url."
-    },
-    {
-      "name": "oauth2.issuer",
-      "type": "java.lang.String",
-      "description": "Url to okta server."
-    },
-    {
-      "name": "oauth2.clientId",
-      "type": "java.lang.String",
-      "description": "Okta clientId."
-    },
-    {
-      "name": "oauth2.clientSecret",
-      "type": "java.lang.String",
-      "description": "Okta clientSecret."
     }
   ] }

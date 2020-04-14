@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
         http.cors()
                 .and().csrf().disable()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager(), environmentProperties))
-                .addFilter(new JWTAuthorizationFilter(authenticationManager()))
+                .addFilter(new JWTAuthorizationFilter(authenticationManager(), environmentProperties))
                 .authorizeRequests()
                 .antMatchers("/api/v1/users", "/api/v1/users/**")
                 .permitAll()

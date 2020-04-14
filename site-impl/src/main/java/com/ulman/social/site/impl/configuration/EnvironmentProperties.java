@@ -12,4 +12,16 @@ import org.springframework.context.annotation.Configuration;
 public class EnvironmentProperties
 {
     private String apiVersion;
+    private Security security;
+
+    @Getter
+    @Setter
+    public static class Security
+    {
+        private String secret;
+        private long expirationTime;
+        private String tokenPrefix;
+        private String headerString;
+        private String signUpUrl;
+    }
 }

@@ -24,10 +24,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
-import static com.ulman.social.site.impl.security.SecurityConstants.EXPIRATION_TIME;
-import static com.ulman.social.site.impl.security.SecurityConstants.HEADER_STRING;
-import static com.ulman.social.site.impl.security.SecurityConstants.SECRET;
-import static com.ulman.social.site.impl.security.SecurityConstants.TOKEN_PREFIX;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter
 {
@@ -73,9 +69,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     {
         String token = JWT.create()
                 .withSubject(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .sign(HMAC512(SECRET.getBytes()));
-        response.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+                .withExpiresAt(new Date(System.currentTimeMillis() + environmentProperties.getSecurity().getExpirationTime()))
+                .sign(HMAC512(environmentProperties.getSecurity().getSecret().getBytes()));
+        response.addHeader(environmentProperties.getSecurity().getHeaderString(), environmentProperties.getSecurity().getTokenPrefix() + token);
 
         PrintWriter out = response.getWriter();
         response.setContentType("application/json");

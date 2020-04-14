@@ -25,6 +25,7 @@ public class ApiErrorExceptionHandler implements ExceptionMapper<ApiError>
     @Override
     public Response toResponse(ApiError e)
     {
+
         final AppError error = new AppError(
                 environmentProperties.getApiVersion(),
                 e.getStatusType(),

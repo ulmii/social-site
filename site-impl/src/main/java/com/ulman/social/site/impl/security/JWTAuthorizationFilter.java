@@ -2,6 +2,7 @@ package com.ulman.social.site.impl.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.ulman.social.site.impl.configuration.EnvironmentProperties;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,15 +15,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static com.ulman.social.site.impl.security.SecurityConstants.HEADER_STRING;
-import static com.ulman.social.site.impl.security.SecurityConstants.SECRET;
-import static com.ulman.social.site.impl.security.SecurityConstants.TOKEN_PREFIX;
-
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter
 {
-    public JWTAuthorizationFilter(AuthenticationManager authManager)
+    private EnvironmentProperties environmentProperties;
+
+    public JWTAuthorizationFilter(AuthenticationManager authManager, EnvironmentProperties environmentProperties)
     {
         super(authManager);
+        this.environmentProperties = environmentProperties;
     }
 
     @Override
@@ -30,9 +30,9 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter
             HttpServletResponse res,
             FilterChain chain) throws IOException, ServletException
     {
-        String header = req.getHeader(HEADER_STRING);
+        String header = req.getHeader(environmentProperties.getSecurity().getHeaderString());
 
-        if (header == null || !header.startsWith(TOKEN_PREFIX))
+        if (header == null || !header.startsWith(environmentProperties.getSecurity().getTokenPrefix()))
         {
             chain.doFilter(req, res);
             return;
@@ -46,13 +46,13 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request)
     {
-        String token = request.getHeader(HEADER_STRING);
+        String token = request.getHeader(environmentProperties.getSecurity().getHeaderString());
         if (token != null)
         {
             // parse the token.
-            String user = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
+            String user = JWT.require(Algorithm.HMAC512(environmentProperties.getSecurity().getSecret().getBytes()))
                     .build()
-                    .verify(token.replace(TOKEN_PREFIX, ""))
+                    .verify(token.replace(environmentProperties.getSecurity().getTokenPrefix(), ""))
                     .getSubject();
 
             if (user != null)
