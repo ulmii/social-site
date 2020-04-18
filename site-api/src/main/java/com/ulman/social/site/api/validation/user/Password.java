@@ -1,4 +1,4 @@
-package com.ulman.social.site.api.validation;
+package com.ulman.social.site.api.validation.user;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

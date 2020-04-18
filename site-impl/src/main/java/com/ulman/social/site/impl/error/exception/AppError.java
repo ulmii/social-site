@@ -46,7 +46,7 @@ public class AppError
     }
 
     @Getter
-    private static final class ErrorBlock
+    public static final class ErrorBlock
     {
         @JsonIgnore
         private final UUID uniqueId;

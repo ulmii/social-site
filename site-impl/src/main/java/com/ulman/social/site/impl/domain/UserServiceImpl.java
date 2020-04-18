@@ -53,15 +53,7 @@ public class UserServiceImpl implements UserService
             throw new UserAlreadyExistsException(String.format("User with email: [%s] already exists", userDto.getEmail()));
         }
 
-        return mapInternal(userRepository.save(User.builder()
-                .withId(userDto.getId())
-                .withName(userDto.getName())
-                .withEmail(userDto.getEmail())
-                .withPassword(passwordEncoder.encode(userDto.getPassword()))
-                .withPhoto(userDto.getPhoto())
-                .withDescription(userDto.getDescription())
-                .withPublicProfile(Objects.requireNonNullElse(userDto.getPublicProfile(), true))
-                .build()));
+        return mapInternal(userRepository.save(createUserFromUserDto(userDto)));
     }
 
     @Override
@@ -89,9 +81,18 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public UserDto updateUser(String id)
+    public UserDto updateUser(String id, UserDto userDto)
     {
-        return null;
+        Optional<User> user = userRepository.findById(id);
+
+        if (user.isPresent())
+        {
+            return mapInternal(updateUserWithUserDto(user.get(), userDto));
+        }
+        else
+        {
+            throw new UserDoesntExistException(String.format("User with id: [%s] does not exist", id));
+        }
     }
 
     @Override
@@ -160,8 +161,61 @@ public class UserServiceImpl implements UserService
     private Optional<User> getLoggedUser()
     {
         String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> user = userRepository.findByEmail(principal);
+        return userRepository.findByEmail(principal);
+    }
 
-        return user;
+    private User createUserFromUserDto(UserDto userDto)
+    {
+        return User.builder()
+                .withId(userDto.getId())
+                .withName(userDto.getName())
+                .withEmail(userDto.getEmail())
+                .withPassword(passwordEncoder.encode(userDto.getPassword()))
+                .withPhoto(userDto.getPhoto())
+                .withDescription(userDto.getDescription())
+                .withPublicProfile(Objects.requireNonNullElse(userDto.getPublicProfile(), true))
+                .build();
+    }
+
+    private User updateUserWithUserDto(User user, UserDto userDto)
+    {
+        userRepository.deleteById(user.getId());
+
+        if (Objects.nonNull(userDto.getId()))
+        {
+            user.setId(user.getId());
+        }
+
+        if (Objects.nonNull(userDto.getPassword()))
+        {
+            user.setPassword(userDto.getPassword());
+        }
+
+        if (Objects.nonNull(userDto.getPublicProfile()))
+        {
+            user.setPublicProfile(userDto.getPublicProfile());
+        }
+
+        if (Objects.nonNull(userDto.getDescription()))
+        {
+            user.setDescription(userDto.getDescription());
+        }
+
+        if (Objects.nonNull(userDto.getEmail()))
+        {
+            user.setEmail(userDto.getEmail());
+        }
+
+        if (Objects.nonNull(userDto.getName()))
+        {
+            user.setName(userDto.getName());
+        }
+
+        if (Objects.nonNull(userDto.getPhoto()))
+        {
+            user.setPhoto(userDto.getPhoto());
+        }
+
+        return userRepository.save(user);
     }
 }

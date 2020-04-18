@@ -12,7 +12,7 @@ public interface UserService
 
     UserDto getUser(String id);
 
-    UserDto updateUser(String id);
+    UserDto updateUser(String id, UserDto userDto);
 
     List<String> getFollowers(String id);
 

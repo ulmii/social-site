@@ -2,11 +2,15 @@ package com.ulman.social.site.api;
 
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
+import com.ulman.social.site.api.validation.OnCreate;
+import com.ulman.social.site.api.validation.OnUpdate;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.groups.ConvertGroup;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -14,7 +18,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Produces(MediaType.APPLICATION_JSON)
@@ -36,7 +39,8 @@ public class UserResource
     }
 
     @POST
-    public UserDto addUser(@Valid UserDto userDto)
+    public UserDto addUser(
+            @Valid @ConvertGroup(to = OnCreate.class) UserDto userDto)
     {
         return userService.addUser(userDto);
     }
@@ -49,12 +53,12 @@ public class UserResource
         return userService.getUser(userId);
     }
 
-    @PUT
+    @PATCH
     @Path("{userId}")
     public UserDto updateUser(
-            @PathParam("userId") String userId)
+            @PathParam("userId") String userId, @Valid @ConvertGroup(to = OnUpdate.class) UserDto userDto)
     {
-        return userService.updateUser(userId);
+        return userService.updateUser(userId, userDto);
     }
 
     @GET

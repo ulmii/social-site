@@ -1,11 +1,12 @@
 package com.ulman.social.site.impl.security;
 
 import com.auth0.jwt.JWT;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
-import com.ulman.social.site.impl.error.exception.AppError;
+import com.ulman.social.site.impl.error.exception.authentication.AuthorizationException;
 import com.ulman.social.site.impl.model.db.User;
+import com.ulman.social.site.impl.security.util.AuthenticationResponseUtil;
+import com.ulman.social.site.impl.security.util.JsonError;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -28,15 +28,12 @@ import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter
 {
     private AuthenticationManager authenticationManager;
-    private ObjectMapper objectMapper;
     private EnvironmentProperties environmentProperties;
 
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager, EnvironmentProperties environmentProperties)
     {
         this.authenticationManager = authenticationManager;
         this.environmentProperties = environmentProperties;
-        this.objectMapper = new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     @Override
@@ -73,32 +70,19 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .sign(HMAC512(environmentProperties.getSecurity().getSecret().getBytes()));
         response.addHeader(environmentProperties.getSecurity().getHeaderString(), environmentProperties.getSecurity().getTokenPrefix() + token);
 
-        PrintWriter out = response.getWriter();
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        out.print(objectMapper.writeValueAsString(auth.getPrincipal()));
-        out.flush();
+        AuthenticationResponseUtil
+                .sendJsonResponse(response, new JsonError(auth.getPrincipal(), Response.Status.OK));
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException
     {
         SecurityContextHolder.clearContext();
-        final AppError error = new AppError(
-                environmentProperties.getApiVersion(),
-                Response.Status.BAD_REQUEST,
-                failed.getMessage(),
-                "User",
-                failed.toString(),
-                "Failed to authorize login credentials"
-        );
 
-        PrintWriter out = response.getWriter();
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        AuthorizationException badCredentialsException = new AuthorizationException(environmentProperties.getApiVersion(), failed);
+        JsonError jsonError = new JsonError(badCredentialsException, badCredentialsException.getError().getStatus());
 
-        out.print(objectMapper.writeValueAsString(error));
-        out.flush();
+        AuthenticationResponseUtil
+                .sendJsonResponse(response, jsonError);
     }
 }

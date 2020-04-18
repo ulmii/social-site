@@ -1,7 +1,9 @@
 package com.ulman.social.site.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.ulman.social.site.api.validation.Password;
+import com.ulman.social.site.api.validation.OnCreate;
+import com.ulman.social.site.api.validation.OnUpdate;
+import com.ulman.social.site.api.validation.user.Password;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,14 +19,14 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class UserDto
 {
-    @NotBlank
+    @NotBlank(groups = OnCreate.class)
     private String id;
     private String name;
-    @Email(message = "Invalid email")
-    @NotBlank
+    @NotBlank(groups = OnCreate.class)
+    @Email(message = "Invalid email", groups = { OnCreate.class, OnUpdate.class })
     private String email;
-    @Password
-    @NotBlank
+    @NotBlank(groups = OnCreate.class)
+    @Password(groups = { OnCreate.class, OnUpdate.class })
     private String password;
     private String photo;
     private String description;
