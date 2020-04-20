@@ -2,13 +2,15 @@ package com.ulman.social.site.impl.domain;
 
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
+import com.ulman.social.site.impl.configuration.EnvironmentProperties;
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
+import com.ulman.social.site.impl.error.exception.authentication.AuthenticationException;
 import com.ulman.social.site.impl.error.exception.user.UserAlreadyExistsException;
 import com.ulman.social.site.impl.error.exception.user.UserDoesntExistException;
 import com.ulman.social.site.impl.model.db.User;
 import com.ulman.social.site.impl.repository.UserRepository;
+import com.ulman.social.site.impl.service.LoggedUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.ulman.social.site.impl.domain.mapper.UserMapper.mapExternal;
 import static com.ulman.social.site.impl.domain.mapper.UserMapper.mapInternal;
 
 @Service
@@ -24,6 +27,8 @@ public class UserServiceImpl implements UserService
 {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
+    private LoggedUserService loggedUserService;
+    private EnvironmentProperties environmentProperties;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder)
@@ -36,7 +41,7 @@ public class UserServiceImpl implements UserService
     public List<UserDto> getUsers()
     {
         return userRepository.findAll().stream()
-                .map(UserMapper::mapInternal)
+                .map(UserMapper::mapExternal)
                 .map(UserMapper::maskSensitive)
                 .collect(Collectors.toList());
     }
@@ -53,19 +58,18 @@ public class UserServiceImpl implements UserService
             throw new UserAlreadyExistsException(String.format("User with email: [%s] already exists", userDto.getEmail()));
         }
 
-        return mapInternal(userRepository.save(createUserFromUserDto(userDto)));
+        return mapExternal(userRepository.save(mapInternal(userDto, passwordEncoder)));
     }
 
     @Override
     public UserDto getUser(String id)
     {
-        Optional<User> loggedUser = getLoggedUser();
         Optional<User> userFromRepository = userRepository.findById(id);
 
         if (userFromRepository.isPresent())
         {
-            UserDto userDto = mapInternal(userFromRepository.get());
-            if (loggedUser.isPresent() && loggedUser.get().getId().equals(id))
+            UserDto userDto = mapExternal(userFromRepository.get());
+            if (loggedUserService.loggedUserIdMatchesWithRequest(id))
             {
                 return userDto;
             }
@@ -87,7 +91,15 @@ public class UserServiceImpl implements UserService
 
         if (user.isPresent())
         {
-            return mapInternal(updateUserWithUserDto(user.get(), userDto));
+            if (loggedUserService.loggedUserIdMatchesWithRequest(id))
+            {
+                return mapExternal(updateUserWithUserDto(user.get(), userDto));
+            }
+            else
+            {
+                throw new AuthenticationException("Only account owners can update their account");
+            }
+
         }
         else
         {
@@ -158,23 +170,16 @@ public class UserServiceImpl implements UserService
         return true;
     }
 
-    private Optional<User> getLoggedUser()
+    @Autowired
+    public void setLoggedUserService(LoggedUserService loggedUserService)
     {
-        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userRepository.findByEmail(principal);
+        this.loggedUserService = loggedUserService;
     }
 
-    private User createUserFromUserDto(UserDto userDto)
+    @Autowired
+    public void setEnvironmentProperties(EnvironmentProperties environmentProperties)
     {
-        return User.builder()
-                .withId(userDto.getId())
-                .withName(userDto.getName())
-                .withEmail(userDto.getEmail())
-                .withPassword(passwordEncoder.encode(userDto.getPassword()))
-                .withPhoto(userDto.getPhoto())
-                .withDescription(userDto.getDescription())
-                .withPublicProfile(Objects.requireNonNullElse(userDto.getPublicProfile(), true))
-                .build();
+        this.environmentProperties = environmentProperties;
     }
 
     private User updateUserWithUserDto(User user, UserDto userDto)

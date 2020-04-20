@@ -7,6 +7,7 @@ import com.ulman.social.site.api.validation.OnUpdate;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.groups.ConvertGroup;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -40,7 +41,7 @@ public class UserResource
 
     @POST
     public UserDto addUser(
-            @Valid @ConvertGroup(to = OnCreate.class) UserDto userDto)
+            @NotNull @Valid @ConvertGroup(to = OnCreate.class) UserDto userDto)
     {
         return userService.addUser(userDto);
     }
@@ -56,7 +57,7 @@ public class UserResource
     @PATCH
     @Path("{userId}")
     public UserDto updateUser(
-            @PathParam("userId") String userId, @Valid @ConvertGroup(to = OnUpdate.class) UserDto userDto)
+            @PathParam("userId") String userId, @NotNull @Valid @ConvertGroup(to = OnUpdate.class) UserDto userDto)
     {
         return userService.updateUser(userId, userDto);
     }
