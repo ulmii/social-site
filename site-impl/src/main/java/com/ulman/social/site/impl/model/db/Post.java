@@ -26,7 +26,6 @@ public class Post implements Serializable
     @GeneratedValue
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users")
     private User user;
     private String description;
 }
