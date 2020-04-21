@@ -1,9 +1,8 @@
-package com.ulman.social.site.impl.error.handling;
+package com.ulman.social.site.impl.domain.handler;
 
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
-import com.ulman.social.site.impl.error.exception.AppError;
+import com.ulman.social.site.impl.domain.error.AppError;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;

@@ -1,4 +1,4 @@
-package com.ulman.social.site.impl.security.util;
+package com.ulman.social.site.impl.security.error.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

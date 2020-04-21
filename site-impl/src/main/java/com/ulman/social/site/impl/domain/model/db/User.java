@@ -1,9 +1,10 @@
-package com.ulman.social.site.impl.model.db;
+package com.ulman.social.site.impl.domain.model.db;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -14,7 +15,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder(setterPrefix = "with")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,9 +40,10 @@ public class User implements Serializable
     )
     private List<Post> posts = new ArrayList<>();
 
-    public void addPost(Post post)
+    public Post addPost(Post post)
     {
         posts.add(post);
         post.setUser(this);
+        return post;
     }
 }

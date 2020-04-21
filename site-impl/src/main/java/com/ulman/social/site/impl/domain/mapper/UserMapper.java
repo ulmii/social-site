@@ -1,7 +1,7 @@
 package com.ulman.social.site.impl.domain.mapper;
 
 import com.ulman.social.site.api.model.UserDto;
-import com.ulman.social.site.impl.model.db.User;
+import com.ulman.social.site.impl.domain.model.db.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;

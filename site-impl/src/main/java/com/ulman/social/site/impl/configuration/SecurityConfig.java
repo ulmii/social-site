@@ -1,7 +1,7 @@
 package com.ulman.social.site.impl.configuration;
 
-import com.ulman.social.site.impl.security.JWTAuthenticationFilter;
-import com.ulman.social.site.impl.security.JWTAuthorizationFilter;
+import com.ulman.social.site.impl.security.filter.JWTAuthenticationFilter;
+import com.ulman.social.site.impl.security.filter.JWTAuthorizationFilter;
 import com.ulman.social.site.impl.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

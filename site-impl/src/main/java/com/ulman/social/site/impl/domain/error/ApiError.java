@@ -1,4 +1,4 @@
-package com.ulman.social.site.impl.error.exception;
+package com.ulman.social.site.impl.domain.error;
 
 import javax.ws.rs.core.Response;
 

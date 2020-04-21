@@ -1,20 +1,28 @@
-package com.ulman.social.site.impl.model.db;
+package com.ulman.social.site.impl.domain.model.db;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Builder(setterPrefix = "with")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,8 +32,14 @@ public class Post implements Serializable
 {
     @Id
     @GeneratedValue
-    private Long id;
+    @Column(updatable = false)
+    private UUID id;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
     private String description;
+    @Column(updatable = false)
+    @CreationTimestamp
+    private Timestamp created;
+    @UpdateTimestamp
+    private Timestamp updated;
 }

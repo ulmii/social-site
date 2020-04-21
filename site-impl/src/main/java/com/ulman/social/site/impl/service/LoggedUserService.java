@@ -1,6 +1,6 @@
 package com.ulman.social.site.impl.service;
 
-import com.ulman.social.site.impl.model.db.User;
+import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;

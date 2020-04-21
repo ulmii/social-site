@@ -1,6 +1,6 @@
-package com.ulman.social.site.impl.error.exception.user;
+package com.ulman.social.site.impl.domain.error.exception.user;
 
-import com.ulman.social.site.impl.error.exception.ApiError;
+import com.ulman.social.site.impl.domain.error.ApiError;
 
 import javax.ws.rs.core.Response;
 

@@ -1,6 +1,6 @@
 package com.ulman.social.site.impl.repository;
 
-import com.ulman.social.site.impl.model.db.User;
+import com.ulman.social.site.impl.domain.model.db.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

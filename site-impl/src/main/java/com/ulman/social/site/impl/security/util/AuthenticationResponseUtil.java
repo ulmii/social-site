@@ -2,6 +2,7 @@ package com.ulman.social.site.impl.security.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ulman.social.site.impl.security.error.model.JsonError;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

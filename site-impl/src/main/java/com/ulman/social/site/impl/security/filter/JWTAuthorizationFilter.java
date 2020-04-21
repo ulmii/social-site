@@ -1,14 +1,12 @@
-package com.ulman.social.site.impl.security;
+package com.ulman.social.site.impl.security.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
-import com.ulman.social.site.impl.error.exception.authentication.AuthorizationException;
+import com.ulman.social.site.impl.domain.error.exception.authentication.AuthorizationException;
+import com.ulman.social.site.impl.security.error.model.JsonError;
 import com.ulman.social.site.impl.security.util.AuthenticationResponseUtil;
-import com.ulman.social.site.impl.security.util.JsonError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

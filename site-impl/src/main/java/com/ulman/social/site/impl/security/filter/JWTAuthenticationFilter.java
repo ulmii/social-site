@@ -1,12 +1,12 @@
-package com.ulman.social.site.impl.security;
+package com.ulman.social.site.impl.security.filter;
 
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
-import com.ulman.social.site.impl.error.exception.authentication.AuthorizationException;
-import com.ulman.social.site.impl.model.db.User;
+import com.ulman.social.site.impl.domain.error.exception.authentication.AuthorizationException;
+import com.ulman.social.site.impl.domain.model.db.User;
+import com.ulman.social.site.impl.security.error.model.JsonError;
 import com.ulman.social.site.impl.security.util.AuthenticationResponseUtil;
-import com.ulman.social.site.impl.security.util.JsonError;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -75,7 +75,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException
     {
         SecurityContextHolder.clearContext();
 

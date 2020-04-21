@@ -5,13 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 @Data
 @Builder(setterPrefix = "with")
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(Include.NON_NULL)
 public class PostDto
 {
-    private Long id;
+    private String id;
     private String userId;
     private String description;
 }

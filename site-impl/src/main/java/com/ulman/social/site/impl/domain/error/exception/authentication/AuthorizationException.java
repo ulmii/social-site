@@ -1,6 +1,6 @@
-package com.ulman.social.site.impl.error.exception.authentication;
+package com.ulman.social.site.impl.domain.error.exception.authentication;
 
-import com.ulman.social.site.impl.error.exception.AppError;
+import com.ulman.social.site.impl.domain.error.AppError;
 
 import javax.ws.rs.core.Response;
 
