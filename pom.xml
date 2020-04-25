@@ -11,9 +11,6 @@
 
   <packaging>pom</packaging>
   <properties>
-    <java.source-target.version>11</java.source-target.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 
