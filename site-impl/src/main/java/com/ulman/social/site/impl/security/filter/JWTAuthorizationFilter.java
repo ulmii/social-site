@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
 import com.ulman.social.site.impl.domain.error.exception.authentication.AuthorizationException;
-import com.ulman.social.site.impl.security.error.model.JsonError;
+import com.ulman.social.site.impl.security.response.model.JsonResponse;
 import com.ulman.social.site.impl.security.util.AuthenticationResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -54,9 +54,9 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter
             SecurityContextHolder.clearContext();
 
             AuthorizationException authorizationException = new AuthorizationException(environmentProperties.getApiVersion(), e);
-            JsonError jsonError = new JsonError(authorizationException, authorizationException.getError().getStatus());
+            JsonResponse jsonResponse = new JsonResponse(authorizationException, authorizationException.getError().getStatus());
 
-            AuthenticationResponseUtil.sendJsonResponse(response, jsonError);
+            AuthenticationResponseUtil.sendJsonResponse(response, jsonResponse);
 
             log.error(e.getMessage());
             return;

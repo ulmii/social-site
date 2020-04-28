@@ -9,11 +9,16 @@ import lombok.Setter;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -29,10 +34,10 @@ public class User implements Serializable
     private String name;
     private String email;
     private String password;
-    private String photo;
+    @Lob
+    private Blob photo;
     private String description;
     private Boolean publicProfile;
-
     @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,
@@ -40,10 +45,25 @@ public class User implements Serializable
     )
     private List<Post> posts = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(name = "followers")
+    private Set<User> followers;
+
+    @ManyToMany
+    @JoinTable(name = "following")
+    private Set<User> following;
+
     public Post addPost(Post post)
     {
         posts.add(post);
         post.setUser(this);
         return post;
+    }
+
+    public Set<User> follow(User user)
+    {
+        following.add(user);
+        user.getFollowers().add(this);
+        return following;
     }
 }

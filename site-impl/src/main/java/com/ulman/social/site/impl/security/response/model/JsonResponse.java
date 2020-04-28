@@ -1,4 +1,4 @@
-package com.ulman.social.site.impl.security.error.model;
+package com.ulman.social.site.impl.security.response.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response;
 @AllArgsConstructor
 @Getter
 @Setter
-public class JsonError
+public class JsonResponse
 {
     public Object object;
     public Response.StatusType statusType;

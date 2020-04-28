@@ -47,7 +47,7 @@ public class UserResource
     }
 
     @GET
-    @Path("{userId}")
+    @Path("/{userId}")
     public UserDto getUser(
             @PathParam("userId") String userId)
     {
@@ -55,15 +55,16 @@ public class UserResource
     }
 
     @PATCH
-    @Path("{userId}")
+    @Path("/{userId}")
     public UserDto updateUser(
-            @PathParam("userId") String userId, @NotNull @Valid @ConvertGroup(to = OnUpdate.class) UserDto userDto)
+            @PathParam("userId") String userId,
+            @NotNull @Valid @ConvertGroup(to = OnUpdate.class) UserDto userDto)
     {
         return userService.updateUser(userId, userDto);
     }
 
     @GET
-    @Path("{userId}/followers")
+    @Path("/{userId}/followers")
     public List<String> getFollowers(
             @PathParam("userId") String userId)
     {
@@ -71,7 +72,7 @@ public class UserResource
     }
 
     @GET
-    @Path("{userId}/following")
+    @Path("/{userId}/following")
     public List<String> getFollowing(
             @PathParam("userId") String userId)
     {
@@ -79,23 +80,25 @@ public class UserResource
     }
 
     @PUT
-    @Path("{userId}/following/{userToFollowId}")
+    @Path("/{userId}/following/{userToFollowId}")
     public List<String> addFollower(
-            @PathParam("userId") String userId, @PathParam("userToFollowId") String userToFollowId)
+            @PathParam("userId") String userId,
+            @PathParam("userToFollowId") String userToFollowId)
     {
         return userService.addFollower(userId, userToFollowId);
     }
 
     @DELETE
-    @Path("{userId}/following/{userToUnfollowId}")
+    @Path("/{userId}/following/{userToUnfollowId}")
     public List<String> deleteFollower(
-            @PathParam("userId") String userId, @PathParam("userToUnfollowId") String userToUnfollowId)
+            @PathParam("userId") String userId,
+            @PathParam("userToUnfollowId") String userToUnfollowId)
     {
         return userService.deleteFollower(userId, userToUnfollowId);
     }
 
     @GET
-    @Path("{userId}/hidden")
+    @Path("/{userId}/hidden")
     public List<UserDto> getHidden(
             @PathParam("userId") String userId)
     {
@@ -103,15 +106,17 @@ public class UserResource
     }
 
     @PUT
-    @Path("{userId}/hidden/{id}")
+    @Path("/{userId}/hidden/{id}")
     public List<UserDto> updateHidden(
-            @PathParam("userId") String userId, @PathParam("id") String id, @QueryParam("type") String type)
+            @PathParam("userId") String userId,
+            @PathParam("id") String id,
+            @QueryParam("type") String type)
     {
         return userService.updateHidden(userId, type);
     }
 
     @GET
-    @Path("{userId}/saved")
+    @Path("/{userId}/saved")
     public List<String> getSaved(
             @PathParam("userId") String userId)
     {
@@ -119,28 +124,14 @@ public class UserResource
     }
 
     @PUT
-    @Path("{userId}/saved/{id}")
+    @Path("/{userId}/saved/{id}")
     public List<String> updateSaved(
-            @PathParam("userId") String userId, @PathParam("id") String id)
+            @PathParam("userId") String userId,
+            @PathParam("id") String id)
     {
         return userService.updateSaved(userId, id);
     }
 
-    @GET
-    @Path("{userId}/posts")
-    public List<UserDto> getPosts(
-            @PathParam("userId") String userId)
-    {
-        return null;
-    }
-
-    @GET
-    @Path("{userId}/comments")
-    public List<UserDto> getComments(
-            @PathParam("userId") String userId)
-    {
-        return null;
-    }
 }
 
 

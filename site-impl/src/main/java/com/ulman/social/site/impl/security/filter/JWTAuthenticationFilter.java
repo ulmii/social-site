@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
 import com.ulman.social.site.impl.domain.error.exception.authentication.AuthorizationException;
 import com.ulman.social.site.impl.domain.model.db.User;
-import com.ulman.social.site.impl.security.error.model.JsonError;
+import com.ulman.social.site.impl.security.response.model.JsonResponse;
 import com.ulman.social.site.impl.security.util.AuthenticationResponseUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
@@ -69,9 +69,14 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withExpiresAt(new Date(System.currentTimeMillis() + environmentProperties.getSecurity().getExpirationTime()))
                 .sign(HMAC512(environmentProperties.getSecurity().getSecret().getBytes()));
         response.addHeader(environmentProperties.getSecurity().getHeaderString(), environmentProperties.getSecurity().getTokenPrefix() + token);
+        Cookie cookie = new Cookie("token", token);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+
+        response.addCookie(cookie);
 
         AuthenticationResponseUtil
-                .sendJsonResponse(response, new JsonError(auth.getPrincipal(), Response.Status.OK));
+                .sendJsonResponse(response, new JsonResponse(auth.getPrincipal(), Response.Status.OK));
     }
 
     @Override
@@ -80,9 +85,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         SecurityContextHolder.clearContext();
 
         AuthorizationException badCredentialsException = new AuthorizationException(environmentProperties.getApiVersion(), failed);
-        JsonError jsonError = new JsonError(badCredentialsException, badCredentialsException.getError().getStatus());
+        JsonResponse jsonResponse = new JsonResponse(badCredentialsException, badCredentialsException.getError().getStatus());
 
         AuthenticationResponseUtil
-                .sendJsonResponse(response, jsonError);
+                .sendJsonResponse(response, jsonResponse);
     }
 }
