@@ -8,23 +8,14 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyClass;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.io.Serializable;
-import java.sql.Blob;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -32,9 +23,9 @@ import java.util.UUID;
 @Builder(setterPrefix = "with")
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "Post")
-@Table(name = "posts")
-public class Post implements Serializable
+@Entity(name = "Comment")
+@Table(name = "comments")
+public class Comment
 {
     @Id
     @GeneratedValue
@@ -42,9 +33,9 @@ public class Post implements Serializable
     private UUID id;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+    @Column(updatable = false)
+    private Boolean rootLevel;
     private String description;
-    @ElementCollection
-    private List<BlobWrapper> photos;
     @Column(updatable = false)
     @CreationTimestamp
     private Timestamp created;

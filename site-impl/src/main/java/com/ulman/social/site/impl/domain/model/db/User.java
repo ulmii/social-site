@@ -16,7 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.sql.Blob;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -43,12 +42,10 @@ public class User implements Serializable
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<Post> posts = new ArrayList<>();
-
+    private List<Post> posts;
     @ManyToMany
     @JoinTable(name = "followers")
     private Set<User> followers;
-
     @ManyToMany
     @JoinTable(name = "following")
     private Set<User> following;

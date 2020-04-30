@@ -3,33 +3,35 @@ package com.ulman.social.site.impl.domain.mapper;
 import com.devskiller.friendly_id.FriendlyId;
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.impl.domain.model.db.Post;
+import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.util.UUID;
 
+@Component
 public class PostMapper
 {
-    public static PostDto mapExternal(Post post)
+    public PostDto mapExternal(Post post)
     {
         return PostDto.builder()
                 .withId(FriendlyId.toFriendlyId(post.getId()))
                 .withUserId(post.getUser().getId())
                 .withCreated(post.getCreated())
                 .withDescription(post.getDescription())
-                .withPhotos(post.getPhotos())
+                .withPhotos(null)
                 .build();
     }
 
-    public static Post mapInternal(PostDto postDto)
+    public Post mapInternal(PostDto postDto)
     {
         return Post.builder()
                 .withId(postDto.getId() == null ? null : FriendlyId.toUuid(postDto.getId()))
                 .withDescription(postDto.getDescription())
-                .withPhotos(postDto.getPhotos())
+                .withPhotos(null)
                 .build();
     }
 
-    public static UUID mapInternalPostId(String postId)
+    public UUID mapInternalPostId(String postId)
     {
         return FriendlyId.toUuid(postId);
     }

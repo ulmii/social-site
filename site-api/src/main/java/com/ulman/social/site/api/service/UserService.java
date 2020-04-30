@@ -14,9 +14,9 @@ public interface UserService
 
     UserDto updateUser(String id, UserDto userDto);
 
-    List<String> getFollowers(String id);
+    List<UserDto> getFollowers(String id);
 
-    List<String> getFollowing(String id);
+    List<UserDto> getFollowing(String id);
 
     List<String> addFollower(String id, String id2);
 

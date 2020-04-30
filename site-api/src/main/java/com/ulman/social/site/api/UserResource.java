@@ -65,7 +65,7 @@ public class UserResource
 
     @GET
     @Path("/{userId}/followers")
-    public List<String> getFollowers(
+    public List<UserDto> getFollowers(
             @PathParam("userId") String userId)
     {
         return userService.getFollowers(userId);
@@ -73,7 +73,7 @@ public class UserResource
 
     @GET
     @Path("/{userId}/following")
-    public List<String> getFollowing(
+    public List<UserDto> getFollowing(
             @PathParam("userId") String userId)
     {
         return userService.getFollowing(userId);

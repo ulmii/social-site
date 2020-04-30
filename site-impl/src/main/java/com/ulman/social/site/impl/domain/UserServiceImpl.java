@@ -83,24 +83,24 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public List<String> getFollowers(String id)
+    public List<UserDto> getFollowers(String id)
     {
         User user = userHelper.getUserFromRepository(id);
 
         return user.getFollowers().stream()
-                .map(User::getId)
+                .map(userMapper::mapExternal)
+                .map(userMapper::maskSensitive)
                 .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public List<String> getFollowing(String id)
+    public List<UserDto> getFollowing(String id)
     {
         User user = userHelper.getUserFromRepository(id);
 
         return user.getFollowing().stream()
-                .map(User::getId)
+                .map(userMapper::mapExternal)
+                .map(userMapper::maskSensitive)
                 .collect(Collectors.toList());
     }
 

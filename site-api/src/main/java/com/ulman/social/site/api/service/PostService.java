@@ -12,7 +12,9 @@ public interface PostService
 
     PostDto addUserPost(String id, PostDto postDto);
 
-    PostDto getPost(String postId);
+    PostDto getPost(String userId, String postId);
 
     PostDto updatePost(String userId, String postId, PostDto postDto);
+
+    PostDto deletePost(String userId, String postId);
 }

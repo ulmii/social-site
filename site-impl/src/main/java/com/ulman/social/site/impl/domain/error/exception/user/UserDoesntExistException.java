@@ -10,4 +10,9 @@ public class UserDoesntExistException extends ApiError
     {
         super(Response.Status.NOT_FOUND, "User", "User does not exist", message);
     }
+
+    public UserDoesntExistException(String message, Response.StatusType statusType)
+    {
+        super(statusType, "User", "User does not exist", message);
+    }
 }

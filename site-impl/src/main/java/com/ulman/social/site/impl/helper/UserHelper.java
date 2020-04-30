@@ -2,15 +2,20 @@ package com.ulman.social.site.impl.helper;
 
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.impl.domain.error.exception.authentication.AuthenticationException;
+import com.ulman.social.site.impl.domain.error.exception.authentication.UserNotLoggedInException;
+import com.ulman.social.site.impl.domain.error.exception.user.ImmutableUserFieldException;
 import com.ulman.social.site.impl.domain.error.exception.user.UserDoesntExistException;
 import com.ulman.social.site.impl.domain.mapper.ImageMapper;
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
 import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.ws.rs.core.Response;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -27,17 +32,30 @@ public class UserHelper
         this.userRepository = userRepository;
     }
 
-    public Optional<User> getLoggedUser()
+    public User getLoggedUser()
     {
         String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userRepository.findByEmail(principal);
+
+        if(principal.matches("anonymousUser"))
+        {
+            throw new UserNotLoggedInException("You must be logged in to access this resource");
+        }
+
+        Optional<User> user = userRepository.findByEmail(principal);
+
+        if(user.isEmpty())
+        {
+            throw new UserDoesntExistException("Logged in user doesn't exist in the repository", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
+        return user.get();
     }
 
     public boolean loggedUserIdMatchesWithRequest(String id)
     {
-        Optional<User> loggedUser = getLoggedUser();
+        User user = getLoggedUser();
 
-        return loggedUser.isPresent() && loggedUser.get().getId().equals(id);
+        return user.getId().equals(id);
     }
 
     public boolean accountExists(String id)
@@ -50,6 +68,7 @@ public class UserHelper
         return userRepository.findByEmail(email).isPresent();
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public User getUserFromRepository(String userId)
     {
         Optional<User> user = userRepository.findById(userId);
@@ -64,11 +83,16 @@ public class UserHelper
 
     public User authorizeAndGetUserById(String userId)
     {
+        return authorizeAndGetUserById(userId, "Only account owners can update their account");
+    }
+
+    public User authorizeAndGetUserById(String userId, String message)
+    {
         User user = getUserFromRepository(userId);
 
         if (!loggedUserIdMatchesWithRequest(userId))
         {
-            throw new AuthenticationException("Only account owners can update their account");
+            throw new AuthenticationException(message);
         }
 
         return user;
@@ -76,11 +100,9 @@ public class UserHelper
 
     public User updateUserWithUserDto(User user, UserDto userDto)
     {
-        userRepository.deleteById(user.getId());
-
         if (Objects.nonNull(userDto.getId()))
         {
-            user.setId(user.getId());
+            throw new ImmutableUserFieldException("Field [id] in user can't be updated");
         }
 
         if (Objects.nonNull(userDto.getPassword()))

@@ -6,6 +6,7 @@ import com.ulman.social.site.api.service.PostService;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PATCH;
@@ -59,13 +60,14 @@ public class PostResource
     @GET
     @Path("{postId}")
     public PostDto getPost(
+            @PathParam("userId") String userId,
             @PathParam("extension") String extension,
             @PathParam("postId") String postId
     )
     {
         throwExceptionIfNotPostsExtension(extension);
 
-        return postService.getPost(postId);
+        return postService.getPost(userId, postId);
     }
 
     @PATCH
@@ -80,6 +82,20 @@ public class PostResource
         throwExceptionIfNotPostsExtension(extension);
 
         return postService.updatePost(userId, postId, postDto);
+
+    }
+
+    @DELETE
+    @Path("/{postId}")
+    public PostDto deletePost(
+            @PathParam("userId") String userId,
+            @PathParam("extension") String extension,
+            @PathParam("postId") String postId
+    )
+    {
+        throwExceptionIfNotPostsExtension(extension);
+
+        return postService.deletePost(userId, postId);
 
     }
 
