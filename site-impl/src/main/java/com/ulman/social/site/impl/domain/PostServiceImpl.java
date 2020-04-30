@@ -56,31 +56,34 @@ public class PostServiceImpl implements PostService
     }
 
     @Override
+    @Transactional
     public PostDto updatePost(String userId, String postId, PostDto postDto)
     {
         userHelper.authorizeAndGetUserById(userId, "Only account owners can update their posts");
 
-        Post post = postHelper.getPostFromRepository(postId);
+        Post post = postHelper.getPostFromRepositoryByUserId(userId, postId);
 
         return postMapper.mapExternal(postHelper.updatePostWithPostDto(post, postDto));
     }
 
     @Override
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public PostDto getPost(String userId, String postId)
     {
         postHelper.checkAccessIfPrivateProfile(userId);
 
-        Post post = postHelper.getPostFromRepository(postId);
+        Post post = postHelper.getPostFromRepositoryByUserId(userId, postId);
 
         return postMapper.mapExternal(post);
     }
 
     @Override
+    @Transactional
     public PostDto deletePost(String userId, String postId)
     {
         userHelper.authorizeAndGetUserById(userId, "Only account owners can delete their posts");
 
-        Post post = postHelper.getPostFromRepository(postId);
+        Post post = postHelper.getPostFromRepositoryByUserId(userId, postId);
         postRepository.delete(post);
 
         return postMapper.mapExternal(post);

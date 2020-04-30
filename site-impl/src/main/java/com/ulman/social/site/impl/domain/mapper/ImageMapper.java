@@ -25,7 +25,7 @@ public class ImageMapper
         }
         catch (SQLException e)
         {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 

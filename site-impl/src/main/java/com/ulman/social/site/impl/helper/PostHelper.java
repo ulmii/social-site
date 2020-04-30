@@ -14,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class PostHelper
@@ -41,6 +44,27 @@ public class PostHelper
         }
 
         return post.get();
+    }
+
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
+    public Post getPostFromRepositoryByUserId(String userId, String postId)
+    {
+        UUID postUuid = postMapper.mapInternalPostId(postId);
+        Optional<Post> postFromRepository = postRepository.findByUser_Id(userId).stream()
+                .filter(post -> post.getId().equals(postUuid))
+                .findFirst();
+
+        if (postFromRepository.isEmpty())
+        {
+            if(postRepository.existsById(postUuid))
+            {
+                throw new PostDoesntExistException(String.format("Post with id: [%s] is assigned to different user", postId));
+            }
+
+            throw new PostDoesntExistException(String.format("Post with id: [%s] does not exist", postId));
+        }
+
+        return postFromRepository.get();
     }
 
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
