@@ -68,7 +68,6 @@ public class UserHelper
         return userRepository.findByEmail(email).isPresent();
     }
 
-    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public User getUserFromRepository(String userId)
     {
         Optional<User> user = userRepository.findById(userId);

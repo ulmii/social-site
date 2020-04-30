@@ -83,6 +83,7 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public List<UserDto> getFollowers(String id)
     {
         User user = userHelper.getUserFromRepository(id);
@@ -94,6 +95,7 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public List<UserDto> getFollowing(String id)
     {
         User user = userHelper.getUserFromRepository(id);
