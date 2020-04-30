@@ -18,7 +18,7 @@ public interface UserService
 
     List<UserDto> getFollowing(String id);
 
-    List<String> addFollower(String id, String id2);
+    List<UserDto> addFollower(String id, String id2);
 
     List<String> deleteFollower(String id, String id2);
 

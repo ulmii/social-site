@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService
 
     @Override
     @Transactional
-    public List<String> addFollower(String id, String id2)
+    public List<UserDto> addFollower(String id, String id2)
     {
         User user = userHelper.authorizeAndGetUserById(id);
         User userToFollow = userHelper.getUserFromRepository(id2);
@@ -116,7 +116,8 @@ public class UserServiceImpl implements UserService
         Set<User> users = user.follow(userToFollow);
 
         return users.stream()
-                .map(User::getId)
+                .map(userMapper::mapExternal)
+                .map(userMapper::maskSensitive)
                 .collect(Collectors.toList());
     }
 
