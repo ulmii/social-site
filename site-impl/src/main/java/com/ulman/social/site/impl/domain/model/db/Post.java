@@ -15,14 +15,10 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyClass;
-import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.sql.Blob;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
@@ -50,4 +46,10 @@ public class Post implements Serializable
     private Timestamp created;
     @UpdateTimestamp
     private Timestamp updated;
+    @OneToMany(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Comment> comments;
 }

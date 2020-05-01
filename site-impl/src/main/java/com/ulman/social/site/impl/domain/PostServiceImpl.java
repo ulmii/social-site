@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,8 +48,7 @@ public class PostServiceImpl implements PostService
     {
         User user = userHelper.authorizeAndGetUserById(userId);
 
-        Post post = postMapper.mapInternal(postDto);
-        post.setUser(user);
+        Post post = postMapper.mapInternal(postDto, user);
         return postMapper.mapExternal(postRepository.save(post));
     }
 

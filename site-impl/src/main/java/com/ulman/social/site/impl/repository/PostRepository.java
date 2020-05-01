@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -26,9 +25,9 @@ public interface PostRepository extends JpaRepository<Post, UUID>
 
     @Query("SELECT DISTINCT post FROM Post post "
             + "LEFT JOIN FETCH post.user users "
-            + "LEFT JOIN FETCH post.photos photos"
+            + "LEFT JOIN FETCH post.photos photos "
             + "LEFT JOIN FETCH users.followers followers "
-            + "WHERE followers.id = (:userId)"
+            + "WHERE followers.id = (:userId) "
             + "ORDER BY post.created DESC")
     List<Post> getUserFollowingPosts(String userId);
 }

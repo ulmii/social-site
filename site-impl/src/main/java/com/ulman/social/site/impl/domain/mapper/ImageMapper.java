@@ -1,6 +1,5 @@
 package com.ulman.social.site.impl.domain.mapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.sql.rowset.serial.SerialBlob;
@@ -14,7 +13,7 @@ public class ImageMapper
 {
     public String blobToStringMapper(Blob blob)
     {
-        if(Objects.isNull(blob))
+        if (Objects.isNull(blob))
         {
             return null;
         }
@@ -31,7 +30,7 @@ public class ImageMapper
 
     public Blob stringToBlobMapper(String image)
     {
-        if(Objects.isNull(image) || image.isBlank())
+        if (Objects.isNull(image) || image.isBlank())
         {
             return null;
         }

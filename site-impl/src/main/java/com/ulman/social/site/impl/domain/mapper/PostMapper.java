@@ -4,9 +4,11 @@ import com.devskiller.friendly_id.FriendlyId;
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.impl.domain.model.db.BlobWrapper;
 import com.ulman.social.site.impl.domain.model.db.Post;
+import com.ulman.social.site.impl.domain.model.db.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,23 +30,34 @@ public class PostMapper
                 .withUserId(post.getUser().getId())
                 .withCreated(post.getCreated())
                 .withDescription(post.getDescription())
-                .withPhotos(post.getPhotos() == null ? null : post.getPhotos().stream()
-                        .map(BlobWrapper::getBlob)
-                        .map(imageMapper::blobToStringMapper)
-                        .collect(Collectors.toList()))
+                .withPhotos(post.getPhotos() == null ? null : mapBlobListToBase64List(post.getPhotos()))
                 .build();
     }
 
-    public Post mapInternal(PostDto postDto)
+    public Post mapInternal(PostDto postDto, User user)
     {
         return Post.builder()
                 .withId(postDto.getId() == null ? null : FriendlyId.toUuid(postDto.getId()))
+                .withUser(user)
                 .withDescription(postDto.getDescription())
-                .withPhotos(postDto.getPhotos() == null ? null : postDto.getPhotos().stream()
-                        .map(imageMapper::stringToBlobMapper)
-                        .map(BlobWrapper::new)
-                        .collect(Collectors.toList()))
+                .withPhotos(postDto.getPhotos() == null ? null : mapBase64ListToBlobList(postDto.getPhotos()))
                 .build();
+    }
+
+    public List<BlobWrapper> mapBase64ListToBlobList(List<String> photos)
+    {
+        return photos.stream()
+                .map(imageMapper::stringToBlobMapper)
+                .map(BlobWrapper::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> mapBlobListToBase64List(List<BlobWrapper> photos)
+    {
+        return photos.stream()
+                .map(BlobWrapper::getBlob)
+                .map(imageMapper::blobToStringMapper)
+                .collect(Collectors.toList());
     }
 
     public UUID mapInternalPostId(String postId)

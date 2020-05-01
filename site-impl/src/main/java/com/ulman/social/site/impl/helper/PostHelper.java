@@ -14,9 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 public class PostHelper
@@ -56,7 +54,7 @@ public class PostHelper
 
         if (postFromRepository.isEmpty())
         {
-            if(postRepository.existsById(postUuid))
+            if (postRepository.existsById(postUuid))
             {
                 throw new PostDoesntExistException(String.format("Post with id: [%s] is assigned to different user", postId));
             }
@@ -106,7 +104,7 @@ public class PostHelper
 
         if (Objects.nonNull(postDto.getPhotos()))
         {
-            post.setPhotos(null);
+            post.setPhotos(postMapper.mapBase64ListToBlobList(postDto.getPhotos()));
         }
 
         return postRepository.save(post);

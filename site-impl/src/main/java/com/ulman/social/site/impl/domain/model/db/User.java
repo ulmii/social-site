@@ -49,6 +49,12 @@ public class User implements Serializable
     @ManyToMany
     @JoinTable(name = "following")
     private Set<User> following;
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Comment> comments;
 
     public Post addPost(Post post)
     {
@@ -62,5 +68,22 @@ public class User implements Serializable
         following.add(user);
         user.getFollowers().add(this);
         return following;
+    }
+
+    public Set<User> unfollow(User user)
+    {
+        following.remove(user);
+        user.getFollowers().remove(this);
+        return following;
+    }
+
+    public Comment addComment(Post post, Comment comment)
+    {
+        comments.add(comment);
+        post.getComments().add(comment);
+        comment.setPost(post);
+        comment.setUser(this);
+
+        return comment;
     }
 }

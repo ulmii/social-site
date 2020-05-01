@@ -1,30 +1,28 @@
 package com.ulman.social.site.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.ulman.social.site.api.validation.Base64;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
 import java.sql.Timestamp;
-import java.util.List;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Data
 @Builder(setterPrefix = "with")
 @AllArgsConstructor
-@JsonInclude(Include.NON_NULL)
-public class PostDto
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class CommentDto
 {
-    @Null(message = "Changing/Specifying post id is forbidden")
+    @Null(message = "Changing/Specifying comment id is forbidden")
     private String id;
     @Null(message = "Changing/Specifying userId is forbidden")
     private String userId;
+    @Null(message = "Changing/Specifying postId is forbidden")
+    private String postId;
     @Null(message = "Changing/Specifying creation date is forbidden")
     private Timestamp created;
-    private String description;
-    private List<@NotBlank @Base64 String> photos;
+    @Null(message = "Changing/Specifying rootLevel is forbidden")
+    private Boolean rootLevel;
+    private String content;
 }

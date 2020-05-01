@@ -33,12 +33,14 @@ public class Comment
     private UUID id;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
-    @Column(updatable = false)
-    private Boolean rootLevel;
-    private String description;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
     @Column(updatable = false)
     @CreationTimestamp
     private Timestamp created;
     @UpdateTimestamp
     private Timestamp updated;
+    @Column(updatable = false)
+    private Boolean rootLevel;
+    private String content;
 }

@@ -20,7 +20,7 @@ public interface UserService
 
     List<UserDto> addFollower(String id, String id2);
 
-    List<String> deleteFollower(String id, String id2);
+    List<UserDto> deleteFollower(String id, String id2);
 
     List<UserDto> getHidden(String id);
 
@@ -29,4 +29,6 @@ public interface UserService
     List<String> getSaved(String id);
 
     List<String> updateSaved(String id, String type);
+
+    UserDto deleteUser(String userId);
 }

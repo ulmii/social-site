@@ -63,6 +63,14 @@ public class UserResource
         return userService.updateUser(userId, userDto);
     }
 
+    @DELETE
+    @Path("/{userId}")
+    public UserDto deleteUser(
+            @PathParam("userId") String userId)
+    {
+        return userService.deleteUser(userId);
+    }
+
     @GET
     @Path("/{userId}/followers")
     public List<UserDto> getFollowers(
@@ -90,7 +98,7 @@ public class UserResource
 
     @DELETE
     @Path("/{userId}/following/{userToUnfollowId}")
-    public List<String> deleteFollower(
+    public List<UserDto> deleteFollower(
             @PathParam("userId") String userId,
             @PathParam("userToUnfollowId") String userToUnfollowId)
     {

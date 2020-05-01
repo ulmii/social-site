@@ -3,7 +3,10 @@ package com.ulman.social.site.impl.domain;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
+import com.ulman.social.site.impl.domain.error.exception.user.SameUserException;
 import com.ulman.social.site.impl.domain.error.exception.user.UserAlreadyExistsException;
+import com.ulman.social.site.impl.domain.error.exception.user.UserAlreadyFollowedException;
+import com.ulman.social.site.impl.domain.error.exception.user.UserNotFollowedException;
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
 import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.helper.UserHelper;
@@ -83,6 +86,16 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
+    public UserDto deleteUser(String userId)
+    {
+        User user = userHelper.authorizeAndGetUserById(userId, "Only account owners can delete their account");
+
+        userRepository.delete(user);
+
+        return userMapper.mapExternal(user);
+    }
+
+    @Override
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public List<UserDto> getFollowers(String id)
     {
@@ -113,6 +126,16 @@ public class UserServiceImpl implements UserService
         User user = userHelper.authorizeAndGetUserById(id);
         User userToFollow = userHelper.getUserFromRepository(id2);
 
+        if (user.equals(userToFollow))
+        {
+            throw new SameUserException("Can't follow yourself");
+        }
+
+        if (userToFollow.getFollowers().contains(user))
+        {
+            throw new UserAlreadyFollowedException("Can't follow the same user twice");
+        }
+
         Set<User> users = user.follow(userToFollow);
 
         return users.stream()
@@ -122,9 +145,28 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public List<String> deleteFollower(String id, String id2)
+    @Transactional
+    public List<UserDto> deleteFollower(String id, String id2)
     {
-        return null;
+        User user = userHelper.authorizeAndGetUserById(id);
+        User userToUnfollow = userHelper.getUserFromRepository(id2);
+
+        if (user.equals(userToUnfollow))
+        {
+            throw new SameUserException("Can't unfollow yourself");
+        }
+
+        if (!user.getFollowing().contains(userToUnfollow) || !userToUnfollow.getFollowers().contains(user))
+        {
+            throw new UserNotFollowedException(String.format("User with id [%s] is not following user with id [%s]", user.getId(), userToUnfollow.getId()));
+        }
+
+        Set<User> users = user.unfollow(userToUnfollow);
+
+        return users.stream()
+                .map(userMapper::mapExternal)
+                .map(userMapper::maskSensitive)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -149,11 +191,6 @@ public class UserServiceImpl implements UserService
     public List<String> updateSaved(String id, String type)
     {
         return null;
-    }
-
-    private boolean isFollowing(String id)
-    {
-        return true;
     }
 
     @Autowired
