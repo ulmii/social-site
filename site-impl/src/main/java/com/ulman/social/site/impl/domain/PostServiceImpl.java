@@ -3,7 +3,6 @@ package com.ulman.social.site.impl.domain;
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.service.PostService;
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
-import com.ulman.social.site.impl.domain.error.exception.authentication.AuthenticationException;
 import com.ulman.social.site.impl.domain.mapper.PostMapper;
 import com.ulman.social.site.impl.domain.model.db.Post;
 import com.ulman.social.site.impl.domain.model.db.User;
@@ -35,20 +34,20 @@ public class PostServiceImpl implements PostService
 
     @Override
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public List<PostDto> getUserPosts(String id)
+    public List<PostDto> getUserPosts(String userId)
     {
-        postHelper.checkAccessIfPrivateProfile(id);
+        postHelper.checkAccessIfPrivateProfile(userId);
 
-        Set<Post> userPosts = postRepository.findByUser_Id(id);
+        List<Post> userPosts = postRepository.findByUser_Id(userId);
         return userPosts.stream()
                 .map(postMapper::mapExternal)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public PostDto addUserPost(String id, PostDto postDto)
+    public PostDto addUserPost(String userId, PostDto postDto)
     {
-        User user = userHelper.authorizeAndGetUserById(id);
+        User user = userHelper.authorizeAndGetUserById(userId);
 
         Post post = postMapper.mapInternal(postDto);
         post.setUser(user);
@@ -90,9 +89,15 @@ public class PostServiceImpl implements PostService
     }
 
     @Override
-    public List<PostDto> getFollowingPosts(String id)
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
+    public List<PostDto> getFollowingPosts(String userId)
     {
-        return null;
+        userHelper.authorizeAndGetUserById(userId, "Only account owners can see their following users post collection");
+
+        List<Post> userFollowingPosts = postRepository.getUserFollowingPosts(userId);
+        return userFollowingPosts.stream()
+                .map(postMapper::mapExternal)
+                .collect(Collectors.toList());
     }
 
     @Autowired
