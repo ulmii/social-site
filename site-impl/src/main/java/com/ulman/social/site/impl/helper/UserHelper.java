@@ -134,6 +134,6 @@ public class UserHelper
             user.setPhoto(imageMapper.stringToBlobMapper(userDto.getPhoto()));
         }
 
-        return userRepository.save(user);
+        return userRepository.saveAndFlush(user);
     }
 }

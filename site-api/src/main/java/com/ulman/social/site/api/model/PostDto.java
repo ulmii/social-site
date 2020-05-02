@@ -25,6 +25,8 @@ public class PostDto
     private String userId;
     @Null(message = "Changing/Specifying creation date is forbidden")
     private Timestamp created;
+    @Null(message = "Changing/Specifying update date is forbidden")
+    private Timestamp updated;
     private String description;
     private List<@NotBlank @Base64 String> photos;
 }

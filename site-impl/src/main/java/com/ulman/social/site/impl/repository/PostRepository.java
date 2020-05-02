@@ -14,14 +14,21 @@ public interface PostRepository extends JpaRepository<Post, UUID>
 {
     @Query("SELECT post FROM Post post "
             + "LEFT JOIN FETCH post.photos "
-            + "WHERE post.id = (:userId)")
-    Optional<Post> findById(UUID userId);
+            + "WHERE post.id = (:postId)")
+    Optional<Post> findById(UUID postId);
 
     @Query("SELECT post FROM Post post "
             + "LEFT JOIN FETCH post.photos "
             + "WHERE post.user.id = (:userId)"
             + "ORDER BY post.created DESC")
-    List<Post> findByUser_Id(String userId);
+    List<Post> getPostsByUserId(String userId);
+
+    @Query("SELECT post FROM Post post "
+            + "LEFT JOIN FETCH post.photos "
+            + "WHERE post.user.id = (:userId) "
+            + "AND post.id = (:postId) "
+            + "ORDER BY post.created DESC")
+    Optional<Post> getPostByUserIdAndPostId(String userId, UUID postId);
 
     @Query("SELECT DISTINCT post FROM Post post "
             + "LEFT JOIN FETCH post.user users "

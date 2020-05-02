@@ -29,6 +29,7 @@ public class PostMapper
                 .withId(FriendlyId.toFriendlyId(post.getId()))
                 .withUserId(post.getUser().getId())
                 .withCreated(post.getCreated())
+                .withUpdated(post.getUpdated())
                 .withDescription(post.getDescription())
                 .withPhotos(post.getPhotos() == null ? null : mapBlobListToBase64List(post.getPhotos()))
                 .build();
@@ -58,10 +59,5 @@ public class PostMapper
                 .map(BlobWrapper::getBlob)
                 .map(imageMapper::blobToStringMapper)
                 .collect(Collectors.toList());
-    }
-
-    public UUID mapInternalPostId(String postId)
-    {
-        return FriendlyId.toUuid(postId);
     }
 }

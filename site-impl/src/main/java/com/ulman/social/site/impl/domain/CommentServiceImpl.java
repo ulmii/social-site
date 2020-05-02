@@ -47,10 +47,40 @@ public class CommentServiceImpl implements CommentService
         User loggedUser = userHelper.getLoggedUser();
         postHelper.checkAccessIfPrivateProfile(userId);
 
-        Post post = postHelper.getPostFromRepositoryByUserId(userId, postId);
+        Post post = postHelper.getPostByUserIdAndPostId(userId, postId);
 
         Comment comment = commentMapper.mapInternal(commentDto, post, loggedUser);
         return commentMapper.mapExternal(commentRepository.save(comment));
+    }
+
+    @Override
+    public CommentDto getComment(String userId, String postId, String commentId)
+    {
+        postHelper.checkAccessIfPrivateProfile(userId);
+
+        Comment comment = commentHelper.getCommentByUserIdAndPostIdAndCommentId(userId, postId, commentId);
+
+        return commentMapper.mapExternal(comment);
+    }
+
+    @Override
+    public CommentDto updateComment(String userId, String postId, String commentId, CommentDto commentDto)
+    {
+        Comment comment = commentHelper.getCommentByUserIdAndPostIdAndCommentId(userId, postId, commentId);
+        userHelper.authorizeAndGetUserById(comment.getUser().getId(), "Only account owners can update their comments");
+
+        return commentMapper.mapExternal(commentHelper.updateCommentWithCommentDto(comment, commentDto));
+    }
+
+    @Override
+    public CommentDto deleteComment(String userId, String postId, String commentId)
+    {
+        Comment comment = commentHelper.getCommentByUserIdAndPostIdAndCommentId(userId, postId, commentId);
+        userHelper.authorizeAndGetUserById(comment.getUser().getId(), "Only account owners can delete their comments");
+
+        commentRepository.delete(comment);
+
+        return commentMapper.mapExternal(comment);
     }
 
     @Autowired

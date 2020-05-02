@@ -37,7 +37,7 @@ public class PostServiceImpl implements PostService
     {
         postHelper.checkAccessIfPrivateProfile(userId);
 
-        List<Post> userPosts = postRepository.findByUser_Id(userId);
+        List<Post> userPosts = postRepository.getPostsByUserId(userId);
         return userPosts.stream()
                 .map(postMapper::mapExternal)
                 .collect(Collectors.toList());
@@ -58,7 +58,7 @@ public class PostServiceImpl implements PostService
     {
         userHelper.authorizeAndGetUserById(userId, "Only account owners can update their posts");
 
-        Post post = postHelper.getPostFromRepositoryByUserId(userId, postId);
+        Post post = postHelper.getPostByUserIdAndPostId(userId, postId);
 
         return postMapper.mapExternal(postHelper.updatePostWithPostDto(post, postDto));
     }
@@ -69,7 +69,7 @@ public class PostServiceImpl implements PostService
     {
         postHelper.checkAccessIfPrivateProfile(userId);
 
-        Post post = postHelper.getPostFromRepositoryByUserId(userId, postId);
+        Post post = postHelper.getPostByUserIdAndPostId(userId, postId);
 
         return postMapper.mapExternal(post);
     }
@@ -80,7 +80,7 @@ public class PostServiceImpl implements PostService
     {
         userHelper.authorizeAndGetUserById(userId, "Only account owners can delete their posts");
 
-        Post post = postHelper.getPostFromRepositoryByUserId(userId, postId);
+        Post post = postHelper.getPostByUserIdAndPostId(userId, postId);
         postRepository.delete(post);
 
         return postMapper.mapExternal(post);

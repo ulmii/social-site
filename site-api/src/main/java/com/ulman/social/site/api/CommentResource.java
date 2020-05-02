@@ -6,7 +6,9 @@ import com.ulman.social.site.api.service.CommentService;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -43,5 +45,36 @@ public class CommentResource
     )
     {
         return commentService.addComment(userId, postId, commentDto);
+    }
+
+    @GET
+    @Path("/{commentId}")
+    public CommentDto getComment(
+            @PathParam("userId") String userId,
+            @PathParam("postId") String postId,
+            @PathParam("commentId") String commentId)
+    {
+        return commentService.getComment(userId, postId, commentId);
+    }
+
+    @PATCH
+    @Path("/{commentId}")
+    public CommentDto updateComment(
+            @PathParam("userId") String userId,
+            @PathParam("postId") String postId,
+            @PathParam("commentId") String commentId,
+            @NotNull @Valid CommentDto commentDto)
+    {
+        return commentService.updateComment(userId, postId, commentId, commentDto);
+    }
+
+    @DELETE
+    @Path("/{commentId}")
+    public CommentDto deleteComment(
+            @PathParam("userId") String userId,
+            @PathParam("postId") String postId,
+            @PathParam("commentId") String commentId)
+    {
+        return commentService.deleteComment(userId, postId, commentId);
     }
 }

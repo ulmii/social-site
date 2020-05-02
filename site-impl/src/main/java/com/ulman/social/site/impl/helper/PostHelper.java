@@ -1,5 +1,6 @@
 package com.ulman.social.site.impl.helper;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.impl.domain.error.exception.authentication.PrivateProfileException;
 import com.ulman.social.site.impl.domain.error.exception.post.ImmutablePostFieldException;
@@ -34,7 +35,7 @@ public class PostHelper
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public Post getPostFromRepository(String id)
     {
-        Optional<Post> post = postRepository.findById(postMapper.mapInternalPostId(id));
+        Optional<Post> post = postRepository.findById(FriendlyId.toUuid(id));
 
         if (post.isEmpty())
         {
@@ -45,12 +46,10 @@ public class PostHelper
     }
 
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public Post getPostFromRepositoryByUserId(String userId, String postId)
+    public Post getPostByUserIdAndPostId(String userId, String postId)
     {
-        UUID postUuid = postMapper.mapInternalPostId(postId);
-        Optional<Post> postFromRepository = postRepository.findByUser_Id(userId).stream()
-                .filter(post -> post.getId().equals(postUuid))
-                .findFirst();
+        UUID postUuid = FriendlyId.toUuid(postId);
+        Optional<Post> postFromRepository = postRepository.getPostByUserIdAndPostId(userId, postUuid);
 
         if (postFromRepository.isEmpty())
         {
@@ -107,6 +106,6 @@ public class PostHelper
             post.setPhotos(postMapper.mapBase64ListToBlobList(postDto.getPhotos()));
         }
 
-        return postRepository.save(post);
+        return postRepository.saveAndFlush(post);
     }
 }

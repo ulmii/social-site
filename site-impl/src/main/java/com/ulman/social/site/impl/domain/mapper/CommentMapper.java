@@ -17,6 +17,7 @@ public class CommentMapper
                 .withPostId(FriendlyId.toFriendlyId(comment.getPost().getId()))
                 .withUserId(comment.getUser().getId())
                 .withCreated(comment.getCreated())
+                .withUpdated(comment.getUpdated())
                 .withContent(comment.getContent())
                 .withRootLevel(comment.getRootLevel())
                 .build();

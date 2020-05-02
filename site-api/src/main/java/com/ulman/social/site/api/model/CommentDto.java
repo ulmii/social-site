@@ -22,6 +22,8 @@ public class CommentDto
     private String postId;
     @Null(message = "Changing/Specifying creation date is forbidden")
     private Timestamp created;
+    @Null(message = "Changing/Specifying update date is forbidden")
+    private Timestamp updated;
     @Null(message = "Changing/Specifying rootLevel is forbidden")
     private Boolean rootLevel;
     private String content;
