@@ -29,6 +29,8 @@ public class UserMapper
                 .withPhoto(imageMapper.blobToStringMapper(user.getPhoto()))
                 .withDescription(user.getDescription())
                 .withPublicProfile(user.getPublicProfile())
+                .withCreated(user.getCreated())
+                .withUpdated(user.getUpdated())
                 .build();
     }
 
@@ -49,6 +51,7 @@ public class UserMapper
     {
         userDto.setEmail(null);
         userDto.setPassword(null);
+        userDto.setUpdated(null);
 
         return userDto;
     }

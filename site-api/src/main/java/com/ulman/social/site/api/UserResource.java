@@ -72,40 +72,6 @@ public class UserResource
     }
 
     @GET
-    @Path("/{userId}/followers")
-    public List<UserDto> getFollowers(
-            @PathParam("userId") String userId)
-    {
-        return userService.getFollowers(userId);
-    }
-
-    @GET
-    @Path("/{userId}/following")
-    public List<UserDto> getFollowing(
-            @PathParam("userId") String userId)
-    {
-        return userService.getFollowing(userId);
-    }
-
-    @PUT
-    @Path("/{userId}/following/{userToFollowId}")
-    public List<UserDto> addFollower(
-            @PathParam("userId") String userId,
-            @PathParam("userToFollowId") String userToFollowId)
-    {
-        return userService.addFollower(userId, userToFollowId);
-    }
-
-    @DELETE
-    @Path("/{userId}/following/{userToUnfollowId}")
-    public List<UserDto> deleteFollower(
-            @PathParam("userId") String userId,
-            @PathParam("userToUnfollowId") String userToUnfollowId)
-    {
-        return userService.deleteFollower(userId, userToUnfollowId);
-    }
-
-    @GET
     @Path("/{userId}/hidden")
     public List<UserDto> getHidden(
             @PathParam("userId") String userId)

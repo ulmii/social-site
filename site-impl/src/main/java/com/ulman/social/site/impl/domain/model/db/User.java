@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -16,6 +18,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.sql.Blob;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +40,10 @@ public class User implements Serializable
     private Blob photo;
     private String description;
     private Boolean publicProfile;
+    @CreationTimestamp
+    private Timestamp created;
+    @UpdateTimestamp
+    private Timestamp updated;
     @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,
@@ -70,11 +77,11 @@ public class User implements Serializable
         return following;
     }
 
-    public Set<User> unfollow(User user)
+    public User unfollow(User user)
     {
         following.remove(user);
         user.getFollowers().remove(this);
-        return following;
+        return user;
     }
 
     public Comment addComment(Post post, Comment comment)

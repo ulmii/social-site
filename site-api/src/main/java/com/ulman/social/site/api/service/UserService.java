@@ -14,14 +14,6 @@ public interface UserService
 
     UserDto updateUser(String id, UserDto userDto);
 
-    List<UserDto> getFollowers(String id);
-
-    List<UserDto> getFollowing(String id);
-
-    List<UserDto> addFollower(String id, String id2);
-
-    List<UserDto> deleteFollower(String id, String id2);
-
     List<UserDto> getHidden(String id);
 
     List<UserDto> updateHidden(String id, String type);

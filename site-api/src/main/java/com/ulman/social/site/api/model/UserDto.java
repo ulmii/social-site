@@ -11,6 +11,9 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
+
+import java.sql.Timestamp;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -33,4 +36,8 @@ public class UserDto
     private String photo;
     private String description;
     private Boolean publicProfile;
+    @Null(message = "Changing/Specifying creation date is forbidden")
+    private Timestamp created;
+    @Null(message = "Changing/Specifying update date is forbidden")
+    private Timestamp updated;
 }
