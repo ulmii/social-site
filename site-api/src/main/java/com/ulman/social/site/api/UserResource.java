@@ -1,5 +1,6 @@
 package com.ulman.social.site.api;
 
+import com.ulman.social.site.api.model.ContainerDto;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
 import com.ulman.social.site.api.validation.OnCreate;
@@ -73,7 +74,7 @@ public class UserResource
 
     @GET
     @Path("/{userId}/hidden")
-    public List<UserDto> getHidden(
+    public List<ContainerDto> getHidden(
             @PathParam("userId") String userId)
     {
         return userService.getHidden(userId);
@@ -81,17 +82,17 @@ public class UserResource
 
     @PUT
     @Path("/{userId}/hidden/{id}")
-    public List<UserDto> updateHidden(
+    public Object addHidden(
             @PathParam("userId") String userId,
             @PathParam("id") String id,
             @QueryParam("type") String type)
     {
-        return userService.updateHidden(userId, type);
+        return userService.addHidden(userId, type);
     }
 
     @GET
     @Path("/{userId}/saved")
-    public List<String> getSaved(
+    public ContainerDto getSaved(
             @PathParam("userId") String userId)
     {
         return userService.getSaved(userId);
@@ -99,13 +100,11 @@ public class UserResource
 
     @PUT
     @Path("/{userId}/saved/{id}")
-    public List<String> updateSaved(
+    public Object addSaved(
             @PathParam("userId") String userId,
-            @PathParam("id") String id)
+            @PathParam("id") String id,
+            @NotNull @QueryParam("type") String type)
     {
-        return userService.updateSaved(userId, id);
+        return userService.addSaved(userId, id, type);
     }
-
 }
-
-

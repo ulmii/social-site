@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/users/{userId}")
+@Path("/users/{userId}/followers")
 public class FollowerResource
 {
     private FollowerService followerService;
@@ -26,7 +26,6 @@ public class FollowerResource
     }
 
     @GET
-    @Path("/followers")
     public List<UserDto> getFollowers(
             @PathParam("userId") String userId)
     {
@@ -34,7 +33,7 @@ public class FollowerResource
     }
 
     @GET
-    @Path("/followers/pending")
+    @Path("/pending")
     public List<UserDto> getPendingFollowers(
             @PathParam("userId") String userId)
     {
@@ -42,37 +41,11 @@ public class FollowerResource
     }
 
     @PUT
-    @Path("/followers/{followerId}")
+    @Path("/{followerId}")
     public UserDto acceptPendingFollower(
             @PathParam("userId") String userId,
             @PathParam("followerId") String followerId)
     {
         return followerService.acceptPendingFollower(userId, followerId);
-    }
-
-    @GET
-    @Path("/following")
-    public List<UserDto> getFollowing(
-            @PathParam("userId") String userId)
-    {
-        return followerService.getFollowing(userId);
-    }
-
-    @PUT
-    @Path("/following/{userToFollowId}")
-    public List<UserDto> addFollower(
-            @PathParam("userId") String userId,
-            @PathParam("userToFollowId") String userToFollowId)
-    {
-        return followerService.addFollower(userId, userToFollowId);
-    }
-
-    @DELETE
-    @Path("/following/{userToUnfollowId}")
-    public UserDto deleteFollower(
-            @PathParam("userId") String userId,
-            @PathParam("userToUnfollowId") String userToUnfollowId)
-    {
-        return followerService.deleteFollower(userId, userToUnfollowId);
     }
 }

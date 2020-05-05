@@ -18,7 +18,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/users/{userId}/{extension:posts|following\\/posts$}")
+@Path("/users/{userId}/{extension:posts}")
 public class PostResource
 {
     private PostService postService;
