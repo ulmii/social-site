@@ -13,4 +13,8 @@ public interface FollowerService
     List<UserDto> addFollower(String id, String id2);
 
     UserDto deleteFollower(String id, String id2);
+
+    List<UserDto> getPendingFollowers(String userId);
+
+    UserDto acceptPendingFollower(String userId, String followerId);
 }

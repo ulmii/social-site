@@ -34,6 +34,23 @@ public class FollowerResource
     }
 
     @GET
+    @Path("/followers/pending")
+    public List<UserDto> getPendingFollowers(
+            @PathParam("userId") String userId)
+    {
+        return followerService.getPendingFollowers(userId);
+    }
+
+    @PUT
+    @Path("/followers/{followerId}")
+    public UserDto acceptPendingFollower(
+            @PathParam("userId") String userId,
+            @PathParam("followerId") String followerId)
+    {
+        return followerService.acceptPendingFollower(userId, followerId);
+    }
+
+    @GET
     @Path("/following")
     public List<UserDto> getFollowing(
             @PathParam("userId") String userId)

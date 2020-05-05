@@ -54,6 +54,9 @@ public class User implements Serializable
     @JoinTable(name = "followers")
     private Set<User> followers;
     @ManyToMany
+    @JoinTable(name = "pendingFollowers")
+    private Set<User> pendingFollowers;
+    @ManyToMany
     @JoinTable(name = "following")
     private Set<User> following;
     @OneToMany(
@@ -75,6 +78,20 @@ public class User implements Serializable
         following.add(user);
         user.getFollowers().add(this);
         return following;
+    }
+
+    public Set<User> addPendingFollower(User user)
+    {
+        this.getPendingFollowers().add(user);
+        return following;
+    }
+
+    public Set<User> acceptPendingFollower(User user)
+    {
+        pendingFollowers.remove(user);
+        followers.add(user);
+        user.getFollowing().add(this);
+        return followers;
     }
 
     public User unfollow(User user)
