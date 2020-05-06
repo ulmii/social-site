@@ -8,7 +8,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -18,7 +17,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/users/{userId}/{extension:posts}")
+@Path("/users/{userId}/posts")
 public class PostResource
 {
     private PostService postService;
@@ -31,8 +30,7 @@ public class PostResource
 
     @GET
     public List<PostDto> handlePosts(
-            @PathParam("userId") String id,
-            @PathParam("extension") String extension
+            @PathParam("userId") String id
     )
     {
         return postService.getUserPosts(id);
@@ -41,12 +39,9 @@ public class PostResource
     @POST
     public PostDto addUserPost(
             @PathParam("userId") String id,
-            @PathParam("extension") String extension,
             @NotNull @Valid PostDto postDto
     )
     {
-        throwExceptionIfNotPostsExtension(extension);
-
         return postService.addUserPost(id, postDto);
     }
 
@@ -54,12 +49,9 @@ public class PostResource
     @Path("{postId}")
     public PostDto getPost(
             @PathParam("userId") String userId,
-            @PathParam("extension") String extension,
             @PathParam("postId") String postId
     )
     {
-        throwExceptionIfNotPostsExtension(extension);
-
         return postService.getPost(userId, postId);
     }
 
@@ -67,36 +59,21 @@ public class PostResource
     @Path("/{postId}")
     public PostDto updatePost(
             @PathParam("userId") String userId,
-            @PathParam("extension") String extension,
             @PathParam("postId") String postId,
             @NotNull @Valid PostDto postDto
     )
     {
-        throwExceptionIfNotPostsExtension(extension);
-
         return postService.updatePost(userId, postId, postDto);
-
     }
 
     @DELETE
     @Path("/{postId}")
     public PostDto deletePost(
             @PathParam("userId") String userId,
-            @PathParam("extension") String extension,
             @PathParam("postId") String postId
     )
     {
-        throwExceptionIfNotPostsExtension(extension);
-
         return postService.deletePost(userId, postId);
 
-    }
-
-    private void throwExceptionIfNotPostsExtension(String extension)
-    {
-        if (!extension.equals("posts"))
-        {
-            throw new NotFoundException();
-        }
     }
 }

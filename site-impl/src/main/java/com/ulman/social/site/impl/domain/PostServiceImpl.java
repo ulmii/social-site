@@ -27,7 +27,6 @@ public class PostServiceImpl implements PostService
     private PostMapper postMapper;
     private UserHelper userHelper;
     private PostHelper postHelper;
-    private EnvironmentProperties environmentProperties;
 
     @Autowired
     public PostServiceImpl(PostRepository postRepository)
@@ -136,11 +135,5 @@ public class PostServiceImpl implements PostService
     public void setPostHelper(PostHelper postHelper)
     {
         this.postHelper = postHelper;
-    }
-
-    @Autowired
-    public void setEnvironmentProperties(EnvironmentProperties environmentProperties)
-    {
-        this.environmentProperties = environmentProperties;
     }
 }
