@@ -64,21 +64,6 @@ public class PostHelper
         return postFromRepository.get();
     }
 
-    @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public void checkAccessIfPrivateProfile(String userId)
-    {
-        User user = userHelper.getUserFromRepository(userId);
-
-        if (!user.getPublicProfile())
-        {
-            User loggedUser = userHelper.getLoggedUser();
-            if (!user.getId().equals(loggedUser.getId()) && !user.getFollowers().contains(loggedUser))
-            {
-                throw new PrivateProfileException(String.format("You must be one of [%s] followers to view posts", user.getId()));
-            }
-        }
-    }
-
     public Post updatePostWithPostDto(Post post, PostDto postDto)
     {
         if (Objects.nonNull(postDto.getId()))

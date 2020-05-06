@@ -74,7 +74,7 @@ public class UserResource
 
     @GET
     @Path("/{userId}/hidden")
-    public List<ContainerDto> getHidden(
+    public ContainerDto getHidden(
             @PathParam("userId") String userId)
     {
         return userService.getHidden(userId);
@@ -82,12 +82,22 @@ public class UserResource
 
     @PUT
     @Path("/{userId}/hidden/{id}")
-    public Object addHidden(
+    public ContainerDto addHidden(
             @PathParam("userId") String userId,
             @PathParam("id") String id,
-            @QueryParam("type") String type)
+            @NotNull @QueryParam("type") String type)
     {
-        return userService.addHidden(userId, type);
+        return userService.addHidden(userId, id, type);
+    }
+
+    @DELETE
+    @Path("/{userId}/hidden/{id}")
+    public ContainerDto removeHidden(
+            @PathParam("userId") String userId,
+            @PathParam("id") String id,
+            @NotNull @QueryParam("type") String type)
+    {
+        return userService.removeHidden(userId, id, type);
     }
 
     @GET
@@ -100,11 +110,21 @@ public class UserResource
 
     @PUT
     @Path("/{userId}/saved/{id}")
-    public Object addSaved(
+    public ContainerDto addSaved(
             @PathParam("userId") String userId,
             @PathParam("id") String id,
             @NotNull @QueryParam("type") String type)
     {
         return userService.addSaved(userId, id, type);
+    }
+
+    @DELETE
+    @Path("/{userId}/saved/{id}")
+    public ContainerDto removeSaved(
+            @PathParam("userId") String userId,
+            @PathParam("id") String id,
+            @NotNull @QueryParam("type") String type)
+    {
+        return userService.removeSaved(userId, id, type);
     }
 }

@@ -68,6 +68,7 @@ public class User implements Serializable
     )
     private List<Comment> comments;
     private Container saved;
+    private Container hidden;
 
     public Post addPost(Post post)
     {

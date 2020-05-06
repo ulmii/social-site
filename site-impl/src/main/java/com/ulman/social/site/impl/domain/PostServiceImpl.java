@@ -3,6 +3,7 @@ package com.ulman.social.site.impl.domain;
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.service.PostService;
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
+import com.ulman.social.site.impl.domain.error.exception.authentication.PrivateProfileException;
 import com.ulman.social.site.impl.domain.mapper.PostMapper;
 import com.ulman.social.site.impl.domain.model.db.Post;
 import com.ulman.social.site.impl.domain.model.db.User;
@@ -14,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +39,10 @@ public class PostServiceImpl implements PostService
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public List<PostDto> getUserPosts(String userId)
     {
-        postHelper.checkAccessIfPrivateProfile(userId);
+        if (userHelper.isProfileNotAccessible(userId))
+        {
+            throw new PrivateProfileException(String.format("You must be one of [%s] followers to view posts", userId));
+        }
 
         List<Post> userPosts = postRepository.getPostsByUserId(userId);
         return userPosts.stream()
@@ -46,7 +53,7 @@ public class PostServiceImpl implements PostService
     @Override
     public PostDto addUserPost(String userId, PostDto postDto)
     {
-        User user = userHelper.authorizeAndGetUserById(userId);
+        User user = userHelper.authorizeAndGetUserById(userId, "Only account owners can add posts");
 
         Post post = postMapper.mapInternal(postDto, user);
         return postMapper.mapExternal(postRepository.save(post));
@@ -67,7 +74,10 @@ public class PostServiceImpl implements PostService
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public PostDto getPost(String userId, String postId)
     {
-        postHelper.checkAccessIfPrivateProfile(userId);
+        if (userHelper.isProfileNotAccessible(userId))
+        {
+            throw new PrivateProfileException(String.format("You must be one of [%s] followers to view posts", userId));
+        }
 
         Post post = postHelper.getPostByUserIdAndPostId(userId, postId);
 
@@ -90,10 +100,22 @@ public class PostServiceImpl implements PostService
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public List<PostDto> getFollowingPosts(String userId)
     {
-        userHelper.authorizeAndGetUserById(userId, "Only account owners can see their following users post collection");
+        User user = userHelper.authorizeAndGetUserById(userId, "Only account owners can see their following users post collection");
+
+        Set<String> usersToFilter = user.getHidden()
+                .getUsers().stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
+        Set<UUID> postsToFilter = user.getHidden()
+                .getPosts().stream()
+                .map(Post::getId)
+                .collect(Collectors.toSet());
 
         List<Post> userFollowingPosts = postRepository.getUserFollowingPosts(userId);
+
         return userFollowingPosts.stream()
+                .filter(Predicate.not(post -> usersToFilter.contains(post.getUser().getId())))
+                .filter(Predicate.not(post -> postsToFilter.contains(post.getId())))
                 .map(postMapper::mapExternal)
                 .collect(Collectors.toList());
     }

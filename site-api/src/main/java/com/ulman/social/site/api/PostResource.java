@@ -35,14 +35,7 @@ public class PostResource
             @PathParam("extension") String extension
     )
     {
-        if (extension.equals("posts"))
-        {
-            return postService.getUserPosts(id);
-        }
-        else
-        {
-            return postService.getFollowingPosts(id);
-        }
+        return postService.getUserPosts(id);
     }
 
     @POST

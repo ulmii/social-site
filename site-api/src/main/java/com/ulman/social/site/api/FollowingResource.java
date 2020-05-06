@@ -1,7 +1,9 @@
 package com.ulman.social.site.api;
 
+import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.FollowerService;
+import com.ulman.social.site.api.service.PostService;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -18,11 +20,13 @@ import java.util.List;
 public class FollowingResource
 {
     private FollowerService followerService;
+    private PostService postService;
 
     @Inject
-    public FollowingResource(FollowerService followerService)
+    public FollowingResource(FollowerService followerService, PostService postService)
     {
         this.followerService = followerService;
+        this.postService = postService;
     }
 
     @GET
@@ -48,5 +52,14 @@ public class FollowingResource
             @PathParam("userToUnfollowId") String userToUnfollowId)
     {
         return followerService.deleteFollower(userId, userToUnfollowId);
+    }
+
+    @GET
+    @Path("/posts")
+    public List<PostDto> getFollowingPosts(
+            @PathParam("userId") String userId
+    )
+    {
+        return postService.getFollowingPosts(userId);
     }
 }

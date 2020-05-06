@@ -1,12 +1,17 @@
 package com.ulman.social.site.impl.domain;
 
 import com.ulman.social.site.api.model.ContainerDto;
-import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
 import com.ulman.social.site.impl.domain.error.exception.InvalidTypeException;
+import com.ulman.social.site.impl.domain.error.exception.post.PostAlreadyHiddenException;
+import com.ulman.social.site.impl.domain.error.exception.post.PostAlreadySavedException;
+import com.ulman.social.site.impl.domain.error.exception.post.PostDoesntExistException;
+import com.ulman.social.site.impl.domain.error.exception.user.SameUserException;
 import com.ulman.social.site.impl.domain.error.exception.user.UserAlreadyExistsException;
-import com.ulman.social.site.impl.domain.mapper.PostMapper;
+import com.ulman.social.site.impl.domain.error.exception.user.UserAlreadyHiddenException;
+import com.ulman.social.site.impl.domain.error.exception.user.UserAlreadySavedException;
+import com.ulman.social.site.impl.domain.error.exception.user.UserDoesntExistException;
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
 import com.ulman.social.site.impl.domain.model.db.Post;
 import com.ulman.social.site.impl.domain.model.db.User;
@@ -19,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class UserServiceImpl implements UserService
@@ -27,7 +34,6 @@ public class UserServiceImpl implements UserService
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private UserMapper userMapper;
-    private PostMapper postMapper;
     private UserHelper userHelper;
     private PostHelper postHelper;
 
@@ -40,8 +46,16 @@ public class UserServiceImpl implements UserService
     @Override
     public List<UserDto> getUsers()
     {
-        return userRepository.findAll().stream()
-                .map(userMapper::mapExternal)
+        Stream<User> userStream = userRepository.findAll().stream();
+
+        Optional<User> user = userHelper.getUserIfLoggedIn();
+        if (user.isPresent())
+        {
+            List<User> hidden = user.get().getHidden().getUsers();
+            userStream = userStream.filter(userToFilter -> !hidden.contains(userToFilter));
+        }
+
+        return userStream.map(userMapper::mapExternal)
                 .map(userMapper::maskSensitive)
                 .collect(Collectors.toList());
     }
@@ -97,15 +111,50 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public List<ContainerDto> getHidden(String id)
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
+    public ContainerDto getHidden(String id)
     {
-        return null;
+        User user = userHelper.authorizeAndGetUserById(id, "Only account owners can manage their hidden collection");
+
+        return userHelper.getHiddenContainerFromUser(user);
     }
 
     @Override
-    public ContainerDto addHidden(String id, String type)
+    @Transactional
+    public ContainerDto addHidden(String userId, String id, String type)
     {
-        return null;
+        User user = userHelper.authorizeAndGetUserById(userId);
+        if (type.equals("user"))
+        {
+            User userToHide = userHelper.getUserFromRepository(id);
+            if (user.equals(userToHide))
+            {
+                throw new SameUserException("Can't hide yourself");
+            }
+
+            if (user.getHidden().getUsers().contains(userToHide))
+            {
+                throw new UserAlreadyHiddenException("Can't hide same user twice");
+            }
+
+            user.getHidden().addUser(userToHide);
+        }
+        else if (type.equals("post"))
+        {
+            Post post = postHelper.getPostFromRepository(id);
+            if (user.getHidden().getPosts().contains(post))
+            {
+                throw new PostAlreadyHiddenException("Can't hide same post twice");
+            }
+
+            user.getHidden().addPost(post);
+        }
+        else
+        {
+            throw new InvalidTypeException("Only [user|post] values are accepted as hide type ex. ?type=post");
+        }
+
+        return getHidden(userId);
     }
 
     @Override
@@ -114,18 +163,45 @@ public class UserServiceImpl implements UserService
     {
         User user = userHelper.authorizeAndGetUserById(id, "Only account owners can manage their saved collection");
 
-        List<PostDto> posts = user.getSaved()
-                .getPosts().stream()
-                .map(postMapper::mapExternal)
-                .collect(Collectors.toList());
+        return userHelper.getSavedContainerFromUser(user);
+    }
 
-        List<UserDto> users = user.getSaved()
-                .getUsers().stream()
-                .map(userMapper::mapExternal)
-                .map(userMapper::maskSensitive)
-                .collect(Collectors.toList());
+    @Override
+    @Transactional
+    public ContainerDto removeHidden(String userId, String id, String type)
+    {
+        User user = userHelper.authorizeAndGetUserById(userId);
+        if (type.equals("user"))
+        {
+            User userToUnHide = userHelper.getUserFromRepository(id);
+            if (user.equals(userToUnHide))
+            {
+                throw new SameUserException("Can't remove yourself from hidden");
+            }
 
-        return new ContainerDto(posts, users);
+            if (!user.getHidden().getUsers().contains(userToUnHide))
+            {
+                throw new UserDoesntExistException("User not hidden");
+            }
+
+            user.getHidden().getUsers().remove(userToUnHide);
+        }
+        else if (type.equals("post"))
+        {
+            Post post = postHelper.getPostFromRepository(id);
+            if (!user.getHidden().getPosts().contains(post))
+            {
+                throw new PostDoesntExistException("Post not hidden");
+            }
+
+            user.getHidden().getPosts().remove(post);
+        }
+        else
+        {
+            throw new InvalidTypeException("Only [user|post] values are accepted as save type ex. ?type=post");
+        }
+
+        return getHidden(userId);
     }
 
     @Override
@@ -133,15 +209,68 @@ public class UserServiceImpl implements UserService
     public ContainerDto addSaved(String userId, String id, String type)
     {
         User user = userHelper.authorizeAndGetUserById(userId);
-        if(type.equals("user"))
+        if (type.equals("user"))
         {
-            userHelper.getUserFromRepository(id);
-            user.getSaved().addUser(user);
+            User userToSave = userHelper.getUserFromRepository(id);
+            if (user.equals(userToSave))
+            {
+                throw new SameUserException("Can't save yourself");
+            }
+
+            if (user.getSaved().getUsers().contains(userToSave))
+            {
+                throw new UserAlreadySavedException("Can't save same user twice");
+            }
+
+            user.getSaved().addUser(userToSave);
         }
-        else if(type.equals("post"))
+        else if (type.equals("post"))
         {
             Post post = postHelper.getPostFromRepository(id);
+            if (user.getSaved().getPosts().contains(post))
+            {
+                throw new PostAlreadySavedException("Can't save same post twice");
+            }
+
             user.getSaved().addPost(post);
+        }
+        else
+        {
+            throw new InvalidTypeException("Only [user|post] values are accepted as save type ex. ?type=post");
+        }
+
+        return getSaved(userId);
+    }
+
+    @Override
+    @Transactional
+    public ContainerDto removeSaved(String userId, String id, String type)
+    {
+        User user = userHelper.authorizeAndGetUserById(userId);
+        if (type.equals("user"))
+        {
+            User userToRemove = userHelper.getUserFromRepository(id);
+            if (user.equals(userToRemove))
+            {
+                throw new SameUserException("Can't remove yourself from saved");
+            }
+
+            if (!user.getSaved().getUsers().contains(userToRemove))
+            {
+                throw new UserDoesntExistException("User not saved");
+            }
+
+            user.getSaved().getUsers().remove(userToRemove);
+        }
+        else if (type.equals("post"))
+        {
+            Post post = postHelper.getPostFromRepository(id);
+            if (!user.getSaved().getPosts().contains(post))
+            {
+                throw new PostDoesntExistException("Post not saved");
+            }
+
+            user.getSaved().getPosts().remove(post);
         }
         else
         {
@@ -155,12 +284,6 @@ public class UserServiceImpl implements UserService
     public void setUserMapper(UserMapper userMapper)
     {
         this.userMapper = userMapper;
-    }
-
-    @Autowired
-    public void setPostMapper(PostMapper postMapper)
-    {
-        this.postMapper = postMapper;
     }
 
     @Autowired

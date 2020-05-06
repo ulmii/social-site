@@ -2,15 +2,10 @@ package com.ulman.social.site.impl.helper;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.ulman.social.site.api.model.CommentDto;
-import com.ulman.social.site.api.model.PostDto;
+import com.ulman.social.site.impl.domain.error.exception.authentication.PrivateProfileException;
 import com.ulman.social.site.impl.domain.error.exception.comment.CommentDoesntExistException;
 import com.ulman.social.site.impl.domain.error.exception.comment.ImmutableCommentFieldException;
-import com.ulman.social.site.impl.domain.error.exception.post.ImmutablePostFieldException;
-import com.ulman.social.site.impl.domain.error.exception.post.PostDoesntExistException;
-import com.ulman.social.site.impl.domain.mapper.PostMapper;
 import com.ulman.social.site.impl.domain.model.db.Comment;
-import com.ulman.social.site.impl.domain.model.db.Post;
-import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,7 +20,7 @@ import java.util.UUID;
 public class CommentHelper
 {
     private CommentRepository commentRepository;
-    private PostMapper postMapper;
+    private UserHelper userHelper;
     private PostHelper postHelper;
 
     @Autowired
@@ -37,7 +32,10 @@ public class CommentHelper
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public List<Comment> getPostComments(String userId, String postId)
     {
-        postHelper.checkAccessIfPrivateProfile(userId);
+        if (userHelper.isProfileNotAccessible(userId))
+        {
+            throw new PrivateProfileException(String.format("You must be one of [%s] followers to view posts", userId));
+        }
         postHelper.getPostByUserIdAndPostId(userId, postId);
 
         UUID postUuid = FriendlyId.toUuid(postId);
@@ -72,32 +70,32 @@ public class CommentHelper
             throw new ImmutableCommentFieldException("Field [id] in comment can't be updated");
         }
 
-        if(Objects.nonNull(commentDto.getPostId()))
+        if (Objects.nonNull(commentDto.getPostId()))
         {
             throw new ImmutableCommentFieldException("Field [postId] in comment can't be updated");
         }
 
-        if(Objects.nonNull(commentDto.getUserId()))
+        if (Objects.nonNull(commentDto.getUserId()))
         {
             throw new ImmutableCommentFieldException("Field [userId] in comment can't be updated");
         }
 
-        if(Objects.nonNull(commentDto.getCreated()))
+        if (Objects.nonNull(commentDto.getCreated()))
         {
             throw new ImmutableCommentFieldException("Field [created] in comment can't be updated");
         }
 
-        if(Objects.nonNull(commentDto.getUpdated()))
+        if (Objects.nonNull(commentDto.getUpdated()))
         {
             throw new ImmutableCommentFieldException("Field [updated] in comment can't be updated");
         }
 
-        if(Objects.nonNull(commentDto.getRootLevel()))
+        if (Objects.nonNull(commentDto.getRootLevel()))
         {
             throw new ImmutableCommentFieldException("Field [rootLevel] in comment can't be updated");
         }
 
-        if(Objects.nonNull(commentDto.getContent()))
+        if (Objects.nonNull(commentDto.getContent()))
         {
             comment.setContent(commentDto.getContent());
         }
@@ -106,9 +104,9 @@ public class CommentHelper
     }
 
     @Autowired
-    public void setPostMapper(PostMapper postMapper)
+    public void setUserHelper(UserHelper userHelper)
     {
-        this.postMapper = postMapper;
+        this.userHelper = userHelper;
     }
 
     @Autowired

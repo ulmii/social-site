@@ -8,6 +8,6 @@ public class PrivateProfileException extends ApiError
 {
     public PrivateProfileException(String message)
     {
-        super(Response.Status.FORBIDDEN, "User", "Access to user posts is restricted", message);
+        super(Response.Status.FORBIDDEN, "Authorization", "Access to user posts is restricted", message);
     }
 }

@@ -15,13 +15,17 @@ public interface UserService
 
     UserDto updateUser(String id, UserDto userDto);
 
-    List<ContainerDto> getHidden(String id);
+    UserDto deleteUser(String userId);
 
-    ContainerDto addHidden(String id, String type);
+    ContainerDto getHidden(String id);
+
+    ContainerDto addHidden(String userId, String id, String type);
 
     ContainerDto getSaved(String id);
 
     ContainerDto addSaved(String userId, String id, String type);
 
-    UserDto deleteUser(String userId);
+    ContainerDto removeSaved(String userId, String id, String type);
+
+    ContainerDto removeHidden(String userId, String id, String type);
 }

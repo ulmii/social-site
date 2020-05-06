@@ -2,6 +2,7 @@ package com.ulman.social.site.impl.domain;
 
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.FollowerService;
+import com.ulman.social.site.impl.domain.error.exception.authentication.PrivateProfileException;
 import com.ulman.social.site.impl.domain.error.exception.user.PendingFollowException;
 import com.ulman.social.site.impl.domain.error.exception.user.SameUserException;
 import com.ulman.social.site.impl.domain.error.exception.user.UserAlreadyFollowedException;
@@ -31,6 +32,11 @@ public class FollowerServiceImpl implements FollowerService
     {
         User user = userHelper.getUserFromRepository(id);
 
+        if (userHelper.isProfileNotAccessible(id))
+        {
+            throw new PrivateProfileException(String.format("You must be one of [%s] followers to view followers", id));
+        }
+
         return user.getFollowers().stream()
                 .map(userMapper::mapExternal)
                 .map(userMapper::maskSensitive)
@@ -42,6 +48,11 @@ public class FollowerServiceImpl implements FollowerService
     public List<UserDto> getFollowing(String id)
     {
         User user = userHelper.getUserFromRepository(id);
+
+        if (userHelper.isProfileNotAccessible(id))
+        {
+            throw new PrivateProfileException(String.format("You must be one of [%s] followers to view following", id));
+        }
 
         return user.getFollowing().stream()
                 .map(userMapper::mapExternal)
@@ -89,7 +100,7 @@ public class FollowerServiceImpl implements FollowerService
     {
         User user = userHelper.authorizeAndGetUserById(userId, "Only account owners can manage their follower requests");
 
-        if(user.getPublicProfile())
+        if (user.getPublicProfile())
         {
             throw new UserProfileNotPrivateException("Pending followers is only for users with profile set to private");
         }
@@ -106,7 +117,7 @@ public class FollowerServiceImpl implements FollowerService
     {
         User user = userHelper.authorizeAndGetUserById(userId, "Only account owners can manage their follower requests");
 
-        if(user.getPublicProfile())
+        if (user.getPublicProfile())
         {
             throw new UserProfileNotPrivateException("Pending followers is only for users with profile set to private");
         }
@@ -124,7 +135,7 @@ public class FollowerServiceImpl implements FollowerService
             throw new UserAlreadyFollowedException("User already is accepted");
         }
 
-        if(!user.getPendingFollowers().contains(userToAccept))
+        if (!user.getPendingFollowers().contains(userToAccept))
         {
             throw new UserDoesntExistException(String.format("User [%s] not found in pending followers", userToAccept.getId()));
         }

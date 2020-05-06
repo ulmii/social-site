@@ -1,33 +1,42 @@
 package com.ulman.social.site.impl.helper;
 
+import com.ulman.social.site.api.model.ContainerDto;
+import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.impl.domain.error.exception.authentication.AuthenticationException;
 import com.ulman.social.site.impl.domain.error.exception.authentication.UserNotLoggedInException;
 import com.ulman.social.site.impl.domain.error.exception.user.ImmutableUserFieldException;
 import com.ulman.social.site.impl.domain.error.exception.user.UserDoesntExistException;
 import com.ulman.social.site.impl.domain.mapper.ImageMapper;
+import com.ulman.social.site.impl.domain.mapper.PostMapper;
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
+import com.ulman.social.site.impl.domain.model.db.Container;
 import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class UserHelper
 {
+    private UserMapper userMapper;
+    private PostMapper postMapper;
     private ImageMapper imageMapper;
     private UserRepository userRepository;
 
     @Autowired
-    public UserHelper(ImageMapper imageMapper, UserRepository userRepository)
+    public UserHelper(UserMapper userMapper, PostMapper postMapper, ImageMapper imageMapper, UserRepository userRepository)
     {
+        this.userMapper = userMapper;
+        this.postMapper = postMapper;
         this.imageMapper = imageMapper;
         this.userRepository = userRepository;
     }
@@ -58,6 +67,20 @@ public class UserHelper
         return user.getId().equals(id);
     }
 
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
+    public boolean isProfileNotAccessible(String userId)
+    {
+        User user = getUserFromRepository(userId);
+
+        if (!user.getPublicProfile())
+        {
+            User loggedUser = getLoggedUser();
+            return !user.getId().equals(loggedUser.getId()) && !user.getFollowers().contains(loggedUser);
+        }
+
+        return false;
+    }
+
     public boolean accountExists(String id)
     {
         return userRepository.findById(id).isPresent();
@@ -66,6 +89,18 @@ public class UserHelper
     public boolean emailExists(String email)
     {
         return userRepository.findByEmail(email).isPresent();
+    }
+
+    public Optional<User> getUserIfLoggedIn()
+    {
+        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principal.matches("anonymousUser"))
+        {
+            return Optional.empty();
+        }
+
+        return userRepository.findByEmail(principal);
     }
 
     public User getUserFromRepository(String userId)
@@ -135,5 +170,31 @@ public class UserHelper
         }
 
         return userRepository.saveAndFlush(user);
+    }
+
+    public ContainerDto getSavedContainerFromUser(User user)
+    {
+        return mapContainerToContainerDto(user.getSaved());
+    }
+
+    public ContainerDto getHiddenContainerFromUser(User user)
+    {
+        return mapContainerToContainerDto(user.getHidden());
+    }
+
+    public ContainerDto mapContainerToContainerDto(Container container)
+    {
+        List<PostDto> posts = container
+                .getPosts().stream()
+                .map(postMapper::mapExternal)
+                .collect(Collectors.toList());
+
+        List<UserDto> users = container
+                .getUsers().stream()
+                .map(userMapper::mapExternal)
+                .map(userMapper::maskSensitive)
+                .collect(Collectors.toList());
+
+        return new ContainerDto(posts, users);
     }
 }

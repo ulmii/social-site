@@ -2,6 +2,7 @@ package com.ulman.social.site.impl.domain;
 
 import com.ulman.social.site.api.model.CommentDto;
 import com.ulman.social.site.api.service.CommentService;
+import com.ulman.social.site.impl.domain.error.exception.authentication.PrivateProfileException;
 import com.ulman.social.site.impl.domain.mapper.CommentMapper;
 import com.ulman.social.site.impl.domain.model.db.Comment;
 import com.ulman.social.site.impl.domain.model.db.Post;
@@ -34,6 +35,11 @@ public class CommentServiceImpl implements CommentService
     @Override
     public List<CommentDto> getComments(String userId, String postId)
     {
+        if(userHelper.isProfileNotAccessible(userId))
+        {
+            throw new PrivateProfileException(String.format("You must be one of [%s] followers to access comments", userId));
+        }
+
         List<Comment> postComments = commentHelper.getPostComments(userId, postId);
 
         return postComments.stream()
@@ -45,7 +51,10 @@ public class CommentServiceImpl implements CommentService
     public CommentDto addComment(String userId, String postId, CommentDto commentDto)
     {
         User loggedUser = userHelper.getLoggedUser();
-        postHelper.checkAccessIfPrivateProfile(userId);
+        if(userHelper.isProfileNotAccessible(userId))
+        {
+            throw new PrivateProfileException(String.format("You must be one of [%s] followers to add a comment", userId));
+        }
 
         Post post = postHelper.getPostByUserIdAndPostId(userId, postId);
 
@@ -56,7 +65,10 @@ public class CommentServiceImpl implements CommentService
     @Override
     public CommentDto getComment(String userId, String postId, String commentId)
     {
-        postHelper.checkAccessIfPrivateProfile(userId);
+        if(userHelper.isProfileNotAccessible(userId))
+        {
+            throw new PrivateProfileException(String.format("You must be one of [%s] followers to access comments", userId));
+        }
 
         Comment comment = commentHelper.getCommentByUserIdAndPostIdAndCommentId(userId, postId, commentId);
 
