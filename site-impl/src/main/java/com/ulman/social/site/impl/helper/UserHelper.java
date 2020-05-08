@@ -22,16 +22,12 @@ import java.util.Optional;
 @Component
 public class UserHelper
 {
-    private UserMapper userMapper;
-    private PostMapper postMapper;
     private ImageMapper imageMapper;
     private UserRepository userRepository;
 
     @Autowired
-    public UserHelper(UserMapper userMapper, PostMapper postMapper, ImageMapper imageMapper, UserRepository userRepository)
+    public UserHelper(ImageMapper imageMapper, UserRepository userRepository)
     {
-        this.userMapper = userMapper;
-        this.postMapper = postMapper;
         this.imageMapper = imageMapper;
         this.userRepository = userRepository;
     }
