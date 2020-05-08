@@ -3,7 +3,6 @@ package com.ulman.social.site.api;
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.service.PostService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 import javax.inject.Inject;
 import javax.validation.Valid;

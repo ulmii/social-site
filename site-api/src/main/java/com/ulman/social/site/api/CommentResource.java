@@ -17,7 +17,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/users/{userId}/posts/{postId}/comments")

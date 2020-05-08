@@ -1,8 +1,6 @@
 package com.ulman.social.site.impl.domain.mapper;
 
-import com.ulman.social.site.api.model.CommentDto;
 import com.ulman.social.site.api.model.UserDto;
-import com.ulman.social.site.impl.domain.model.db.Comment;
 import com.ulman.social.site.impl.domain.model.db.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -63,7 +61,6 @@ public class UserMapper
 
         return userDto;
     }
-
 
     public final Page<UserDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<User> source, boolean maskSensitive)
     {

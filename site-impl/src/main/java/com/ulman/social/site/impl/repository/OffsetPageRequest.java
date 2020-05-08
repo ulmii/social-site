@@ -13,6 +13,7 @@ public class OffsetPageRequest extends PageRequest
         super(offset, limit, Sort.by(Sort.Direction.DESC, "created"));
         this.offset = offset;
     }
+
     private OffsetPageRequest(int limit, int offset, Sort sort)
     {
         super(offset, limit, sort);

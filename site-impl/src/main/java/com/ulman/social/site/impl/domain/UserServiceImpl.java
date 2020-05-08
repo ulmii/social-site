@@ -49,8 +49,8 @@ public class UserServiceImpl implements UserService
     @Override
     public Page<UserDto> getUsers(int limit, int offset)
     {
-        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset
-                , Sort.by(Sort.Direction.ASC, "id"));
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset,
+                Sort.by(Sort.Direction.ASC, "id"));
 
         Page<User> users = userRepository.findAll(offsetPageRequest);
 
@@ -122,7 +122,8 @@ public class UserServiceImpl implements UserService
     {
         userHelper.authorizeAndGetUserById(userId, "Only account owners can manage their hidden collection");
 
-        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset);
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset,
+                Sort.by(Sort.Direction.ASC, "id"));
 
         Page<User> users = userRepository.getHiddenUsers(userId, offsetPageRequest);
 
@@ -135,7 +136,8 @@ public class UserServiceImpl implements UserService
     {
         userHelper.authorizeAndGetUserById(userId, "Only account owners can manage their hidden collection");
 
-        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset);
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset,
+                Sort.by(Sort.Direction.ASC, "id"));
 
         Page<Post> posts = userRepository.getHiddenPosts(userId, offsetPageRequest);
 
@@ -224,7 +226,8 @@ public class UserServiceImpl implements UserService
     {
         userHelper.authorizeAndGetUserById(userId, "Only account owners can manage their saved collection");
 
-        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset);
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset,
+                Sort.by(Sort.Direction.ASC, "id"));
 
         Page<User> users = userRepository.getSavedUsers(userId, offsetPageRequest);
 
@@ -237,7 +240,8 @@ public class UserServiceImpl implements UserService
     {
         userHelper.authorizeAndGetUserById(userId, "Only account owners can manage their saved collection");
 
-        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset);
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset,
+                Sort.by(Sort.Direction.ASC, "id"));
 
         Page<Post> posts = userRepository.getSavedPosts(userId, offsetPageRequest);
 
