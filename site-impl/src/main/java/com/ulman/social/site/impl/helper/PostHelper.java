@@ -2,12 +2,10 @@ package com.ulman.social.site.impl.helper;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.ulman.social.site.api.model.PostDto;
-import com.ulman.social.site.impl.domain.error.exception.authentication.PrivateProfileException;
 import com.ulman.social.site.impl.domain.error.exception.post.ImmutablePostFieldException;
 import com.ulman.social.site.impl.domain.error.exception.post.PostDoesntExistException;
 import com.ulman.social.site.impl.domain.mapper.PostMapper;
 import com.ulman.social.site.impl.domain.model.db.Post;
-import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,14 +18,12 @@ import java.util.UUID;
 @Component
 public class PostHelper
 {
-    private UserHelper userHelper;
     private PostMapper postMapper;
     private PostRepository postRepository;
 
     @Autowired
-    public PostHelper(UserHelper userHelper, PostMapper postMapper, PostRepository postRepository)
+    public PostHelper(PostMapper postMapper, PostRepository postRepository)
     {
-        this.userHelper = userHelper;
         this.postMapper = postMapper;
         this.postRepository = postRepository;
     }
@@ -91,6 +87,7 @@ public class PostHelper
             post.setPhotos(postMapper.mapBase64ListToBlobList(postDto.getPhotos()));
         }
 
-        return postRepository.saveAndFlush(post);
+        postRepository.save(post);
+        return postRepository.findById(post.getId()).get();
     }
 }

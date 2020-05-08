@@ -6,10 +6,12 @@ import com.ulman.social.site.impl.domain.model.db.BlobWrapper;
 import com.ulman.social.site.impl.domain.model.db.Post;
 import com.ulman.social.site.impl.domain.model.db.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -59,5 +61,11 @@ public class PostMapper
                 .map(BlobWrapper::getBlob)
                 .map(imageMapper::blobToStringMapper)
                 .collect(Collectors.toList());
+    }
+
+    public Page<PostDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<Post> source)
+    {
+        List<PostDto> posts = source.getContent().stream().map(this::mapExternal).collect(Collectors.toList());
+        return new PageImpl<>(posts, pageRequest, source.getTotalElements());
     }
 }

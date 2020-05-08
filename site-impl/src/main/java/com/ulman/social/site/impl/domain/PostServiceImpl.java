@@ -2,15 +2,20 @@ package com.ulman.social.site.impl.domain;
 
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.service.PostService;
-import com.ulman.social.site.impl.configuration.EnvironmentProperties;
 import com.ulman.social.site.impl.domain.error.exception.authentication.PrivateProfileException;
 import com.ulman.social.site.impl.domain.mapper.PostMapper;
 import com.ulman.social.site.impl.domain.model.db.Post;
 import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.helper.PostHelper;
 import com.ulman.social.site.impl.helper.UserHelper;
+import com.ulman.social.site.impl.repository.OffsetPageRequest;
 import com.ulman.social.site.impl.repository.PostRepository;
+import com.ulman.social.site.impl.repository.PostRepositoryPage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,30 +28,32 @@ import java.util.stream.Collectors;
 @Service
 public class PostServiceImpl implements PostService
 {
+    private PostRepositoryPage postRepositoryPage;
     private PostRepository postRepository;
     private PostMapper postMapper;
     private UserHelper userHelper;
     private PostHelper postHelper;
 
     @Autowired
-    public PostServiceImpl(PostRepository postRepository)
+    public PostServiceImpl(PostRepositoryPage postRepositoryPage, PostRepository postRepository)
     {
+        this.postRepositoryPage = postRepositoryPage;
         this.postRepository = postRepository;
     }
 
     @Override
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public List<PostDto> getUserPosts(String userId)
+    public Page<PostDto> getUserPosts(String userId, int limit, int offset)
     {
         if (userHelper.isProfileNotAccessible(userId))
         {
             throw new PrivateProfileException(String.format("You must be one of [%s] followers to view posts", userId));
         }
 
-        List<Post> userPosts = postRepository.getPostsByUserId(userId);
-        return userPosts.stream()
-                .map(postMapper::mapExternal)
-                .collect(Collectors.toList());
+        OffsetPageRequest offsetPageRequest = new OffsetPageRequest(offset, limit);
+
+        Page<Post> postsByUserId = postRepositoryPage.getPostsByUserId(userId, offsetPageRequest);
+        return postMapper.mapEntityPageIntoDtoPage(offsetPageRequest, postsByUserId);
     }
 
     @Override

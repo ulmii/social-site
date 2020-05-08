@@ -2,19 +2,22 @@ package com.ulman.social.site.api;
 
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.service.PostService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/users/{userId}/posts")
@@ -29,11 +32,13 @@ public class PostResource
     }
 
     @GET
-    public List<PostDto> handlePosts(
-            @PathParam("userId") String id
+    public Page<PostDto> getUserPosts(
+            @PathParam("userId") String id,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset
     )
     {
-        return postService.getUserPosts(id);
+        return postService.getUserPosts(id, limit, offset);
     }
 
     @POST
