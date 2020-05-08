@@ -11,7 +11,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Component
@@ -63,9 +65,17 @@ public class PostMapper
                 .collect(Collectors.toList());
     }
 
-    public Page<PostDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<Post> source)
+    public final Page<PostDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<Post> source)
     {
-        List<PostDto> posts = source.getContent().stream().map(this::mapExternal).collect(Collectors.toList());
+        return mapEntityPageIntoDtoPage(pageRequest, source, (post) -> true);
+    }
+
+    public final Page<PostDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<Post> source, Predicate<Post> postPredicate)
+    {
+        List<PostDto> posts = source.getContent().stream()
+                .filter(postPredicate)
+                .map(this::mapExternal)
+                .collect(Collectors.toList());
         return new PageImpl<>(posts, pageRequest, source.getTotalElements());
     }
 }

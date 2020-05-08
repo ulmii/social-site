@@ -4,14 +4,17 @@ import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.FollowerService;
 import com.ulman.social.site.api.service.PostService;
+import org.springframework.data.domain.Page;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -56,10 +59,12 @@ public class FollowingResource
 
     @GET
     @Path("/posts")
-    public List<PostDto> getFollowingPosts(
-            @PathParam("userId") String userId
+    public Page<PostDto> getFollowingPosts(
+            @PathParam("userId") String userId,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset
     )
     {
-        return postService.getFollowingPosts(userId);
+        return postService.getFollowingPosts(userId, limit, offset);
     }
 }

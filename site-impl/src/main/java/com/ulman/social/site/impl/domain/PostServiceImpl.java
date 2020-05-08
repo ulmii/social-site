@@ -10,16 +10,11 @@ import com.ulman.social.site.impl.helper.PostHelper;
 import com.ulman.social.site.impl.helper.UserHelper;
 import com.ulman.social.site.impl.repository.OffsetPageRequest;
 import com.ulman.social.site.impl.repository.PostRepository;
-import com.ulman.social.site.impl.repository.PostRepositoryPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -28,16 +23,14 @@ import java.util.stream.Collectors;
 @Service
 public class PostServiceImpl implements PostService
 {
-    private PostRepositoryPage postRepositoryPage;
     private PostRepository postRepository;
     private PostMapper postMapper;
     private UserHelper userHelper;
     private PostHelper postHelper;
 
     @Autowired
-    public PostServiceImpl(PostRepositoryPage postRepositoryPage, PostRepository postRepository)
+    public PostServiceImpl(PostRepository postRepository)
     {
-        this.postRepositoryPage = postRepositoryPage;
         this.postRepository = postRepository;
     }
 
@@ -50,9 +43,9 @@ public class PostServiceImpl implements PostService
             throw new PrivateProfileException(String.format("You must be one of [%s] followers to view posts", userId));
         }
 
-        OffsetPageRequest offsetPageRequest = new OffsetPageRequest(offset, limit);
+        OffsetPageRequest offsetPageRequest = new OffsetPageRequest(limit, offset);
 
-        Page<Post> postsByUserId = postRepositoryPage.getPostsByUserId(userId, offsetPageRequest);
+        Page<Post> postsByUserId = postRepository.getPostsByUserId(userId, offsetPageRequest);
         return postMapper.mapEntityPageIntoDtoPage(offsetPageRequest, postsByUserId);
     }
 
@@ -104,7 +97,7 @@ public class PostServiceImpl implements PostService
 
     @Override
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public List<PostDto> getFollowingPosts(String userId)
+    public Page<PostDto> getFollowingPosts(String userId, int limit, int offset)
     {
         User user = userHelper.authorizeAndGetUserById(userId, "Only account owners can see their following users post collection");
 
@@ -117,13 +110,17 @@ public class PostServiceImpl implements PostService
                 .map(Post::getId)
                 .collect(Collectors.toSet());
 
-        List<Post> userFollowingPosts = postRepository.getUserFollowingPosts(userId);
+        OffsetPageRequest offsetPageRequest = new OffsetPageRequest(limit, offset);
 
-        return userFollowingPosts.stream()
-                .filter(Predicate.not(post -> usersToFilter.contains(post.getUser().getId())))
-                .filter(Predicate.not(post -> postsToFilter.contains(post.getId())))
-                .map(postMapper::mapExternal)
-                .collect(Collectors.toList());
+        Predicate<Post> filterHiddenPosts = Predicate.not(post -> postsToFilter.contains(post.getId()));
+        Predicate<Post> filterHiddenUsers = Predicate.not(post -> usersToFilter.contains(post.getUser().getId()));
+
+        Page<Post> userFollowingPosts = postRepository.getUserFollowingPosts(userId, offsetPageRequest);
+
+        return postMapper.mapEntityPageIntoDtoPage(offsetPageRequest,
+                userFollowingPosts,
+                filterHiddenUsers.and(filterHiddenPosts)
+        );
     }
 
     @Autowired

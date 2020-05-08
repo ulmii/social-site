@@ -2,15 +2,12 @@ package com.ulman.social.site.api.service;
 
 import com.ulman.social.site.api.model.PostDto;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public interface PostService
 {
     Page<PostDto> getUserPosts(String id, int limit, int offset);
 
-    List<PostDto> getFollowingPosts(String id);
+    Page<PostDto> getFollowingPosts(String id, int limit, int offset);
 
     PostDto addUserPost(String id, PostDto postDto);
 
