@@ -1,16 +1,18 @@
 package com.ulman.social.site.api;
 
-import com.ulman.social.site.api.model.ContainerDto;
+import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
 import com.ulman.social.site.api.validation.OnCreate;
 import com.ulman.social.site.api.validation.OnUpdate;
+import org.springframework.data.domain.Page;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.ConvertGroup;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
@@ -20,7 +22,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/users")
@@ -35,9 +36,11 @@ public class UserResource
     }
 
     @GET
-    public List<UserDto> getUsers()
+    public Page<UserDto> getUsers(
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset)
     {
-        return userService.getUsers();
+        return userService.getUsers(limit, offset);
     }
 
     @POST
@@ -73,58 +76,115 @@ public class UserResource
     }
 
     @GET
-    @Path("/{userId}/hidden")
-    public ContainerDto getHidden(
-            @PathParam("userId") String userId)
-    {
-        return userService.getHidden(userId);
-    }
-
-    @PUT
-    @Path("/{userId}/hidden/{id}")
-    public ContainerDto addHidden(
+    @Path("/{userId}/hidden/users")
+    public Page<UserDto> getHiddenUsers(
             @PathParam("userId") String userId,
-            @PathParam("id") String id,
-            @NotNull @QueryParam("type") String type)
-    {
-        return userService.addHidden(userId, id, type);
-    }
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset)
 
-    @DELETE
-    @Path("/{userId}/hidden/{id}")
-    public ContainerDto removeHidden(
-            @PathParam("userId") String userId,
-            @PathParam("id") String id,
-            @NotNull @QueryParam("type") String type)
     {
-        return userService.removeHidden(userId, id, type);
+        return userService.getHiddenUsers(userId, limit, offset);
     }
 
     @GET
-    @Path("/{userId}/saved")
-    public ContainerDto getSaved(
-            @PathParam("userId") String userId)
+    @Path("/{userId}/hidden/posts")
+    public Page<PostDto> getHiddenPosts(
+            @PathParam("userId") String userId,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset)
     {
-        return userService.getSaved(userId);
+        return userService.getHiddenPosts(userId, limit, offset);
     }
 
     @PUT
-    @Path("/{userId}/saved/{id}")
-    public ContainerDto addSaved(
+    @Path("/{userId}/hidden/users/{id}")
+    public UserDto addHiddenUser(
             @PathParam("userId") String userId,
-            @PathParam("id") String id,
-            @NotNull @QueryParam("type") String type)
+            @PathParam("id") String id)
     {
-        return userService.addSaved(userId, id, type);
+        return userService.addHiddenUser(userId, id);
+    }
+
+    @PUT
+    @Path("/{userId}/hidden/posts/{id}")
+    public PostDto addHiddenPost(
+            @PathParam("userId") String userId,
+            @PathParam("id") String id)
+    {
+        return userService.addHiddenPost(userId, id);
     }
 
     @DELETE
-    @Path("/{userId}/saved/{id}")
-    public ContainerDto removeSaved(
+    @Path("/{userId}/hidden/users/{id}")
+    public UserDto removeHiddenUser(
             @PathParam("userId") String userId,
-            @PathParam("id") String id,
-            @NotNull @QueryParam("type") String type)
+            @PathParam("id") String id)
     {
-        return userService.removeSaved(userId, id, type);
+        return userService.removeHiddenUser(userId, id);
+    }
+
+    @DELETE
+    @Path("/{userId}/hidden/posts/{id}")
+    public PostDto removeHiddenPost(
+            @PathParam("userId") String userId,
+            @PathParam("id") String id)
+    {
+        return userService.removeHiddenPost(userId, id);
+    }
+
+    @GET
+    @Path("/{userId}/saved/users")
+    public Page<UserDto> getSavedUsers(
+            @PathParam("userId") String userId,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset)
+    {
+        return userService.getSavedUsers(userId, limit, offset);
+    }
+
+    @GET
+    @Path("/{userId}/saved/posts")
+    public Page<PostDto> getSavedPosts(
+            @PathParam("userId") String userId,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset)
+    {
+        return userService.getSavedPosts(userId, limit, offset);
+    }
+
+    @PUT
+    @Path("/{userId}/saved/users/{id}")
+    public UserDto addSavedUser(
+            @PathParam("userId") String userId,
+            @PathParam("id") String id)
+    {
+        return userService.addSavedUser(userId, id);
+    }
+
+    @PUT
+    @Path("/{userId}/saved/posts/{id}")
+    public PostDto addSaved(
+            @PathParam("userId") String userId,
+            @PathParam("id") String id)
+    {
+        return userService.addSavedPost(userId, id);
+    }
+
+    @DELETE
+    @Path("/{userId}/saved/users/{id}")
+    public UserDto removeSavedUser(
+            @PathParam("userId") String userId,
+            @PathParam("id") String id)
+    {
+        return userService.removeSavedUser(userId, id);
+    }
+
+    @DELETE
+    @Path("/{userId}/saved/posts/{id}")
+    public PostDto removeSavedPost(
+            @PathParam("userId") String userId,
+            @PathParam("id") String id)
+    {
+        return userService.removeSavedPost(userId, id);
     }
 }

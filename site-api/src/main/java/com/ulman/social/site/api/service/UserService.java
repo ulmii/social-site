@@ -1,13 +1,12 @@
 package com.ulman.social.site.api.service;
 
-import com.ulman.social.site.api.model.ContainerDto;
+import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface UserService
 {
-    List<UserDto> getUsers();
+    Page<UserDto> getUsers(int limit, int offset);
 
     UserDto addUser(UserDto userDto);
 
@@ -17,15 +16,27 @@ public interface UserService
 
     UserDto deleteUser(String userId);
 
-    ContainerDto getHidden(String id);
+    Page<UserDto> getHiddenUsers(String userId, int limit, int offset);
 
-    ContainerDto addHidden(String userId, String id, String type);
+    Page<PostDto> getHiddenPosts(String userId, int limit, int offset);
 
-    ContainerDto getSaved(String id);
+    UserDto addHiddenUser(String userId, String id);
 
-    ContainerDto addSaved(String userId, String id, String type);
+    PostDto addHiddenPost(String userId, String id);
 
-    ContainerDto removeSaved(String userId, String id, String type);
+    UserDto removeHiddenUser(String userId, String id);
 
-    ContainerDto removeHidden(String userId, String id, String type);
+    PostDto removeHiddenPost(String userId, String id);
+
+    Page<UserDto> getSavedUsers(String id, int limit, int offset);
+
+    Page<PostDto> getSavedPosts(String id, int limit, int offset);
+
+    UserDto addSavedUser(String userId, String id);
+
+    PostDto addSavedPost(String userId, String id);
+
+    UserDto removeSavedUser(String userId, String id);
+
+    PostDto removeSavedPost(String userId, String id);
 }

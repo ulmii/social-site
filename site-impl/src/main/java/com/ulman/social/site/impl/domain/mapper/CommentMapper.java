@@ -42,13 +42,13 @@ public class CommentMapper
 
     public final Page<CommentDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<Comment> source)
     {
-        return mapEntityPageIntoDtoPage(pageRequest, source, (post) -> true);
+        return mapEntityPageIntoDtoPage(pageRequest, source, (comment) -> true);
     }
 
-    public final Page<CommentDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<Comment> source, Predicate<Comment> postPredicate)
+    public final Page<CommentDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<Comment> source, Predicate<Comment> commentPredicate)
     {
         List<CommentDto> posts = source.getContent().stream()
-                .filter(postPredicate)
+                .filter(commentPredicate)
                 .map(this::mapExternal)
                 .collect(Collectors.toList());
         return new PageImpl<>(posts, pageRequest, source.getTotalElements());

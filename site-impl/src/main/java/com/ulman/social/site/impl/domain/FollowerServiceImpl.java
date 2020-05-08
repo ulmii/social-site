@@ -12,7 +12,11 @@ import com.ulman.social.site.impl.domain.error.exception.user.UserProfileNotPriv
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
 import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.helper.UserHelper;
+import com.ulman.social.site.impl.repository.OffsetPageRequest;
+import com.ulman.social.site.impl.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +27,19 @@ import java.util.stream.Collectors;
 @Service
 public class FollowerServiceImpl implements FollowerService
 {
+    private UserRepository userRepository;
     private UserMapper userMapper;
     private UserHelper userHelper;
 
+    @Autowired
+    public FollowerServiceImpl(UserRepository userRepository)
+    {
+        this.userRepository = userRepository;
+    }
+
     @Override
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public List<UserDto> getFollowers(String id)
+    public Page<UserDto> getFollowers(String id, int limit, int offset)
     {
         User user = userHelper.getUserFromRepository(id);
 
@@ -37,15 +48,15 @@ public class FollowerServiceImpl implements FollowerService
             throw new PrivateProfileException(String.format("You must be one of [%s] followers to view followers", id));
         }
 
-        return user.getFollowers().stream()
-                .map(userMapper::mapExternal)
-                .map(userMapper::maskSensitive)
-                .collect(Collectors.toList());
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset);
+
+        Page<User> followers = userRepository.getFollowers(user.getId(), offsetPageRequest);
+        return userMapper.mapEntityPageIntoDtoPage(offsetPageRequest, followers, true);
     }
 
     @Override
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public List<UserDto> getFollowing(String id)
+    public Page<UserDto> getFollowing(String id, int limit, int offset)
     {
         User user = userHelper.getUserFromRepository(id);
 
@@ -54,10 +65,11 @@ public class FollowerServiceImpl implements FollowerService
             throw new PrivateProfileException(String.format("You must be one of [%s] followers to view following", id));
         }
 
-        return user.getFollowing().stream()
-                .map(userMapper::mapExternal)
-                .map(userMapper::maskSensitive)
-                .collect(Collectors.toList());
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset,
+                Sort.by(Sort.Direction.ASC, "id"));
+
+        Page<User> following = userRepository.getFollowing(user.getId(), offsetPageRequest);
+        return userMapper.mapEntityPageIntoDtoPage(offsetPageRequest, following, true);
     }
 
     @Override
@@ -96,7 +108,7 @@ public class FollowerServiceImpl implements FollowerService
 
     @Override
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public List<UserDto> getPendingFollowers(String userId)
+    public Page<UserDto> getPendingFollowers(String userId, int limit, int offset)
     {
         User user = userHelper.authorizeAndGetUserById(userId, "Only account owners can manage their follower requests");
 
@@ -105,10 +117,11 @@ public class FollowerServiceImpl implements FollowerService
             throw new UserProfileNotPrivateException("Pending followers is only for users with profile set to private");
         }
 
-        return user.getPendingFollowers().stream()
-                .map(userMapper::mapExternal)
-                .map(userMapper::maskSensitive)
-                .collect(Collectors.toList());
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset,
+                Sort.by(Sort.Direction.ASC, "id"));
+
+        Page<User> pendingFollowers = userRepository.getPendingFollowers(user.getId(), offsetPageRequest);
+        return userMapper.mapEntityPageIntoDtoPage(offsetPageRequest, pendingFollowers, true);
     }
 
     @Override

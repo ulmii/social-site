@@ -1,12 +1,20 @@
 package com.ulman.social.site.impl.domain.mapper;
 
+import com.ulman.social.site.api.model.CommentDto;
 import com.ulman.social.site.api.model.UserDto;
+import com.ulman.social.site.impl.domain.model.db.Comment;
 import com.ulman.social.site.impl.domain.model.db.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component
 public class UserMapper
@@ -54,5 +62,21 @@ public class UserMapper
         userDto.setUpdated(null);
 
         return userDto;
+    }
+
+
+    public final Page<UserDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<User> source, boolean maskSensitive)
+    {
+        return mapEntityPageIntoDtoPage(pageRequest, source, maskSensitive, (user) -> true);
+    }
+
+    public final Page<UserDto> mapEntityPageIntoDtoPage(Pageable pageRequest, Page<User> source, boolean maskSensitive, Predicate<User> userPredicate)
+    {
+        List<UserDto> posts = source.getContent().stream()
+                .filter(userPredicate)
+                .map(this::mapExternal)
+                .map(user -> maskSensitive ? maskSensitive(user) : user)
+                .collect(Collectors.toList());
+        return new PageImpl<>(posts, pageRequest, source.getTotalElements());
     }
 }

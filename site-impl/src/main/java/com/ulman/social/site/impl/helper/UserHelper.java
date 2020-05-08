@@ -1,7 +1,5 @@
 package com.ulman.social.site.impl.helper;
 
-import com.ulman.social.site.api.model.ContainerDto;
-import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.impl.domain.error.exception.authentication.AuthenticationException;
 import com.ulman.social.site.impl.domain.error.exception.authentication.UserNotLoggedInException;
@@ -10,7 +8,6 @@ import com.ulman.social.site.impl.domain.error.exception.user.UserDoesntExistExc
 import com.ulman.social.site.impl.domain.mapper.ImageMapper;
 import com.ulman.social.site.impl.domain.mapper.PostMapper;
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
-import com.ulman.social.site.impl.domain.model.db.Container;
 import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.core.Response;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class UserHelper
@@ -45,14 +40,14 @@ public class UserHelper
     {
         String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if(principal.matches("anonymousUser"))
+        if (principal.matches("anonymousUser"))
         {
             throw new UserNotLoggedInException("You must be logged in to access this resource");
         }
 
         Optional<User> user = userRepository.findByEmail(principal);
 
-        if(user.isEmpty())
+        if (user.isEmpty())
         {
             throw new UserDoesntExistException("Logged in user doesn't exist in the repository", Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -95,7 +90,7 @@ public class UserHelper
     {
         String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if(principal.matches("anonymousUser"))
+        if (principal.matches("anonymousUser"))
         {
             return Optional.empty();
         }
@@ -146,6 +141,10 @@ public class UserHelper
 
         if (Objects.nonNull(userDto.getPublicProfile()))
         {
+            if (userDto.getPublicProfile() && !user.getPublicProfile())
+            {
+                user.getPendingFollowers().forEach(user::acceptPendingFollower);
+            }
             user.setPublicProfile(userDto.getPublicProfile());
         }
 
@@ -169,32 +168,7 @@ public class UserHelper
             user.setPhoto(imageMapper.stringToBlobMapper(userDto.getPhoto()));
         }
 
-        return userRepository.saveAndFlush(user);
-    }
-
-    public ContainerDto getSavedContainerFromUser(User user)
-    {
-        return mapContainerToContainerDto(user.getSaved());
-    }
-
-    public ContainerDto getHiddenContainerFromUser(User user)
-    {
-        return mapContainerToContainerDto(user.getHidden());
-    }
-
-    public ContainerDto mapContainerToContainerDto(Container container)
-    {
-        List<PostDto> posts = container
-                .getPosts().stream()
-                .map(postMapper::mapExternal)
-                .collect(Collectors.toList());
-
-        List<UserDto> users = container
-                .getUsers().stream()
-                .map(userMapper::mapExternal)
-                .map(userMapper::maskSensitive)
-                .collect(Collectors.toList());
-
-        return new ContainerDto(posts, users);
+        userRepository.save(user);
+        return userRepository.findById(user.getId()).get();
     }
 }

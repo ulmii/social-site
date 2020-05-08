@@ -33,10 +33,12 @@ public class FollowingResource
     }
 
     @GET
-    public List<UserDto> getFollowing(
-            @PathParam("userId") String userId)
+    public Page<UserDto> getFollowing(
+            @PathParam("userId") String userId,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset)
     {
-        return followerService.getFollowing(userId);
+        return followerService.getFollowing(userId, limit, offset);
     }
 
     @PUT

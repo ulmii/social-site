@@ -9,14 +9,12 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.sql.Blob;
@@ -67,8 +65,18 @@ public class User implements Serializable
             orphanRemoval = true
     )
     private List<Comment> comments;
-    private Container saved;
-    private Container hidden;
+    @ManyToMany
+    @JoinTable(name = "hiddenUsers")
+    private Set<User> hiddenUsers;
+    @OneToMany
+    @JoinTable(name = "hiddenPosts")
+    private Set<Post> hiddenPosts;
+    @ManyToMany
+    @JoinTable(name = "savedUsers")
+    private Set<User> savedUsers;
+    @OneToMany
+    @JoinTable(name = "savedPosts")
+    private Set<Post> savedPosts;
 
     public Post addPost(Post post)
     {

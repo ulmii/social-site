@@ -101,12 +101,10 @@ public class PostServiceImpl implements PostService
     {
         User user = userHelper.authorizeAndGetUserById(userId, "Only account owners can see their following users post collection");
 
-        Set<String> usersToFilter = user.getHidden()
-                .getUsers().stream()
+        Set<String> usersToFilter = user.getHiddenUsers().stream()
                 .map(User::getId)
                 .collect(Collectors.toSet());
-        Set<UUID> postsToFilter = user.getHidden()
-                .getPosts().stream()
+        Set<UUID> postsToFilter = user.getHiddenPosts().stream()
                 .map(Post::getId)
                 .collect(Collectors.toSet());
 

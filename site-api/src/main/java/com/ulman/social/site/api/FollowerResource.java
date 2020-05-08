@@ -2,14 +2,17 @@ package com.ulman.social.site.api;
 
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.FollowerService;
+import org.springframework.data.domain.Page;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -26,18 +29,22 @@ public class FollowerResource
     }
 
     @GET
-    public List<UserDto> getFollowers(
-            @PathParam("userId") String userId)
+    public Page<UserDto> getFollowers(
+            @PathParam("userId") String userId,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset)
     {
-        return followerService.getFollowers(userId);
+        return followerService.getFollowers(userId, limit, offset);
     }
 
     @GET
     @Path("/pending")
-    public List<UserDto> getPendingFollowers(
-            @PathParam("userId") String userId)
+    public Page<UserDto> getPendingFollowers(
+            @PathParam("userId") String userId,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset)
     {
-        return followerService.getPendingFollowers(userId);
+        return followerService.getPendingFollowers(userId, limit, offset);
     }
 
     @PUT

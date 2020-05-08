@@ -13,12 +13,29 @@ public class OffsetPageRequest extends PageRequest
         super(offset, limit, Sort.by(Sort.Direction.DESC, "created"));
         this.offset = offset;
     }
+    private OffsetPageRequest(int limit, int offset, Sort sort)
+    {
+        super(offset, limit, sort);
+        this.offset = offset;
+    }
 
     public static OffsetPageRequest of(int limit, int offset)
     {
         try
         {
             return new OffsetPageRequest(limit, offset);
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new PaginationException(e.getMessage());
+        }
+    }
+
+    public static OffsetPageRequest of(int limit, int offset, Sort sort)
+    {
+        try
+        {
+            return new OffsetPageRequest(limit, offset, sort);
         }
         catch (IllegalArgumentException e)
         {
