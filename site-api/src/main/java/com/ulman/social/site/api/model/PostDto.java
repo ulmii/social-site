@@ -8,6 +8,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Builder(setterPrefix = "with")
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class PostDto
+public class PostDto implements Serializable
 {
     @Null(message = "Changing/Specifying post id is forbidden")
     private String id;

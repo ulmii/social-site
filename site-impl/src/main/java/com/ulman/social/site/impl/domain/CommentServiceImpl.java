@@ -11,11 +11,10 @@ import com.ulman.social.site.impl.helper.CommentHelper;
 import com.ulman.social.site.impl.helper.PostHelper;
 import com.ulman.social.site.impl.helper.UserHelper;
 import com.ulman.social.site.impl.repository.CommentRepository;
+import com.ulman.social.site.impl.repository.OffsetPageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService
@@ -33,25 +32,25 @@ public class CommentServiceImpl implements CommentService
     }
 
     @Override
-    public List<CommentDto> getComments(String userId, String postId)
+    public Page<CommentDto> getComments(String userId, String postId, int limit, int offset)
     {
-        if(userHelper.isProfileNotAccessible(userId))
+        if (userHelper.isProfileNotAccessible(userId))
         {
             throw new PrivateProfileException(String.format("You must be one of [%s] followers to access comments", userId));
         }
 
-        List<Comment> postComments = commentHelper.getPostComments(userId, postId);
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset);
 
-        return postComments.stream()
-                .map(commentMapper::mapExternal)
-                .collect(Collectors.toList());
+        Page<Comment> postComments = commentHelper.getPostComments(userId, postId, offsetPageRequest);
+
+        return commentMapper.mapEntityPageIntoDtoPage(offsetPageRequest, postComments);
     }
 
     @Override
     public CommentDto addComment(String userId, String postId, CommentDto commentDto)
     {
         User loggedUser = userHelper.getLoggedUser();
-        if(userHelper.isProfileNotAccessible(userId))
+        if (userHelper.isProfileNotAccessible(userId))
         {
             throw new PrivateProfileException(String.format("You must be one of [%s] followers to add a comment", userId));
         }
@@ -65,7 +64,7 @@ public class CommentServiceImpl implements CommentService
     @Override
     public CommentDto getComment(String userId, String postId, String commentId)
     {
-        if(userHelper.isProfileNotAccessible(userId))
+        if (userHelper.isProfileNotAccessible(userId))
         {
             throw new PrivateProfileException(String.format("You must be one of [%s] followers to access comments", userId));
         }

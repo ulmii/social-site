@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.Embeddable;
 import javax.persistence.OneToMany;
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
@@ -14,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-public class Container
+public class Container implements Serializable
 {
     @OneToMany
     private List<User> users;

@@ -1,14 +1,14 @@
-package com.ulman.social.site.impl.security.util;
+package com.ulman.social.site.impl.domain.error.exception.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ulman.social.site.impl.security.response.model.JsonResponse;
+import com.ulman.social.site.impl.domain.error.exception.model.JsonResponse;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class AuthenticationResponseUtil
+public class ResponseUtil
 {
     public static ObjectMapper objectMapper = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);

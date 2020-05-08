@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,9 +18,8 @@ public interface PostRepository extends PagingAndSortingRepository<Post, UUID>
 
     @Query(value = "SELECT post FROM Post post "
             + "LEFT JOIN post.photos "
-            + "WHERE post.user.id = (:userId)",
-            countQuery = "SELECT count(post) FROM Post post WHERE post.user.id=(:userId) group by post.id")
-    Page<Post> getPostsByUserId(@Param("userId") String userId, Pageable pageRequest);
+            + "WHERE post.user.id = (:userId)")
+    Page<Post> getPostsByUserId(String userId, Pageable pageRequest);
 
     @Query("SELECT post FROM Post post "
             + "LEFT JOIN FETCH post.photos "
@@ -34,11 +32,6 @@ public interface PostRepository extends PagingAndSortingRepository<Post, UUID>
             + "LEFT JOIN post.user users "
             + "LEFT JOIN post.photos photos "
             + "LEFT JOIN users.followers followers "
-            + "WHERE followers.id = (:userId) ",
-            countQuery = "SELECT DISTINCT post FROM Post post "
-                    + "LEFT JOIN post.user users "
-                    + "LEFT JOIN post.photos photos "
-                    + "LEFT JOIN users.followers followers "
-                    + "WHERE followers.id = (:userId) group by post.id")
+            + "WHERE followers.id = (:userId) ")
     Page<Post> getUserFollowingPosts(String userId, Pageable pageRequest);
 }

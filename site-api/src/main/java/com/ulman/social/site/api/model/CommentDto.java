@@ -6,13 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Null;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Data
 @Builder(setterPrefix = "with")
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CommentDto
+public class CommentDto implements Serializable
 {
     @Null(message = "Changing/Specifying comment id is forbidden")
     private String id;

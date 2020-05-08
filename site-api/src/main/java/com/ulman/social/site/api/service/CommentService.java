@@ -1,12 +1,11 @@
 package com.ulman.social.site.api.service;
 
 import com.ulman.social.site.api.model.CommentDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface CommentService
 {
-    List<CommentDto> getComments(String userId, String postId);
+    Page<CommentDto> getComments(String userId, String postId, int limit, int offset);
 
     CommentDto addComment(String userId, String postId, CommentDto commentDto);
 

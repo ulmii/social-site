@@ -8,9 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 @JsonComponent
-public class PageJacksonSerializer extends JsonSerializer<Page>
+public class PageJacksonSerializer extends JsonSerializer<Page<? extends Serializable>>
 {
     @Override
     public void serialize(Page page, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException

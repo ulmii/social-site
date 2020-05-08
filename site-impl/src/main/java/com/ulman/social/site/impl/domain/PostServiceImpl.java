@@ -43,7 +43,7 @@ public class PostServiceImpl implements PostService
             throw new PrivateProfileException(String.format("You must be one of [%s] followers to view posts", userId));
         }
 
-        OffsetPageRequest offsetPageRequest = new OffsetPageRequest(limit, offset);
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset);
 
         Page<Post> postsByUserId = postRepository.getPostsByUserId(userId, offsetPageRequest);
         return postMapper.mapEntityPageIntoDtoPage(offsetPageRequest, postsByUserId);
@@ -110,7 +110,7 @@ public class PostServiceImpl implements PostService
                 .map(Post::getId)
                 .collect(Collectors.toSet());
 
-        OffsetPageRequest offsetPageRequest = new OffsetPageRequest(limit, offset);
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset);
 
         Predicate<Post> filterHiddenPosts = Predicate.not(post -> postsToFilter.contains(post.getId()));
         Predicate<Post> filterHiddenUsers = Predicate.not(post -> usersToFilter.contains(post.getUser().getId()));

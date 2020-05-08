@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.UUID;
 
@@ -25,7 +26,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity(name = "Comment")
 @Table(name = "comments")
-public class Comment
+public class Comment implements Serializable
 {
     @Id
     @GeneratedValue

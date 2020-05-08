@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ulman.social.site.impl.configuration.EnvironmentProperties;
 import com.ulman.social.site.impl.domain.error.exception.authentication.AuthorizationException;
 import com.ulman.social.site.impl.domain.model.db.User;
-import com.ulman.social.site.impl.security.response.model.JsonResponse;
-import com.ulman.social.site.impl.security.util.AuthenticationResponseUtil;
+import com.ulman.social.site.impl.domain.error.exception.model.JsonResponse;
+import com.ulman.social.site.impl.domain.error.exception.util.ResponseUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -75,7 +75,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.addCookie(cookie);
 
-        AuthenticationResponseUtil
+        ResponseUtil
                 .sendJsonResponse(response, new JsonResponse(auth.getPrincipal(), Response.Status.OK));
     }
 
@@ -87,7 +87,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         AuthorizationException badCredentialsException = new AuthorizationException(environmentProperties.getApiVersion(), failed);
         JsonResponse jsonResponse = new JsonResponse(badCredentialsException, badCredentialsException.getError().getStatus());
 
-        AuthenticationResponseUtil
+        ResponseUtil
                 .sendJsonResponse(response, jsonResponse);
     }
 }

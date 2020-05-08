@@ -2,17 +2,20 @@ package com.ulman.social.site.api;
 
 import com.ulman.social.site.api.model.CommentDto;
 import com.ulman.social.site.api.service.CommentService;
+import org.springframework.data.domain.Page;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -29,12 +32,14 @@ public class CommentResource
     }
 
     @GET
-    public List<CommentDto> getComments(
+    public Page<CommentDto> getComments(
             @PathParam("userId") String userId,
-            @PathParam("postId") String postId
+            @PathParam("postId") String postId,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset
     )
     {
-        return commentService.getComments(userId, postId);
+        return commentService.getComments(userId, postId, limit, offset);
     }
 
     @POST

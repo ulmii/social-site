@@ -5,13 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Builder(setterPrefix = "with")
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ContainerDto
+public class ContainerDto implements Serializable
 {
     List<PostDto> posts;
     List<UserDto> users;

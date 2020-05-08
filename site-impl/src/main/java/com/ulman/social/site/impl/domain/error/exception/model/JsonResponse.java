@@ -1,4 +1,4 @@
-package com.ulman.social.site.impl.security.response.model;
+package com.ulman.social.site.impl.domain.error.exception.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

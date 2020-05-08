@@ -12,7 +12,7 @@ import lombok.Data;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
-
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -21,7 +21,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Builder(setterPrefix = "with")
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class UserDto
+public class UserDto implements Serializable
 {
     @NotBlank(groups = OnCreate.class)
     private String id;

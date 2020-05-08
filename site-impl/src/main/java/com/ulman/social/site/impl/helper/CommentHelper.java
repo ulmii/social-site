@@ -7,11 +7,12 @@ import com.ulman.social.site.impl.domain.error.exception.comment.CommentDoesntEx
 import com.ulman.social.site.impl.domain.error.exception.comment.ImmutableCommentFieldException;
 import com.ulman.social.site.impl.domain.model.db.Comment;
 import com.ulman.social.site.impl.repository.CommentRepository;
+import com.ulman.social.site.impl.repository.OffsetPageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,7 +31,7 @@ public class CommentHelper
     }
 
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
-    public List<Comment> getPostComments(String userId, String postId)
+    public Page<Comment> getPostComments(String userId, String postId, OffsetPageRequest offsetPageRequest)
     {
         if (userHelper.isProfileNotAccessible(userId))
         {
@@ -40,7 +41,7 @@ public class CommentHelper
 
         UUID postUuid = FriendlyId.toUuid(postId);
 
-        return commentRepository.getPostComments(postUuid);
+        return commentRepository.getPostComments(postUuid, offsetPageRequest);
     }
 
     @Transactional(readOnly = true, noRollbackFor = Exception.class)
@@ -100,7 +101,8 @@ public class CommentHelper
             comment.setContent(commentDto.getContent());
         }
 
-        return commentRepository.saveAndFlush(comment);
+        commentRepository.save(comment);
+        return commentRepository.findById(comment.getId()).get();
     }
 
     @Autowired
