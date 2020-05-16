@@ -27,6 +27,7 @@ public class ApiErrorExceptionHandler implements ExceptionMapper<ApiError>
     {
 
         final AppError error = new AppError(
+                environmentProperties.getTimeZone().toZoneId(),
                 environmentProperties.getApiVersion(),
                 e.getStatusType(),
                 e.getMessage(),

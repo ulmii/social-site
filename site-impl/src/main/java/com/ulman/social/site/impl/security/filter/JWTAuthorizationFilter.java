@@ -7,6 +7,7 @@ import com.ulman.social.site.impl.configuration.EnvironmentProperties;
 import com.ulman.social.site.impl.domain.error.exception.authentication.AuthorizationException;
 import com.ulman.social.site.impl.domain.error.exception.model.JsonResponse;
 import com.ulman.social.site.impl.domain.error.exception.util.ResponseUtil;
+import com.ulman.social.site.impl.repository.TokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,10 +25,12 @@ import java.util.ArrayList;
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter
 {
     private EnvironmentProperties environmentProperties;
+    private TokenRepository tokenRepository;
 
-    public JWTAuthorizationFilter(AuthenticationManager authManager, EnvironmentProperties environmentProperties)
+    public JWTAuthorizationFilter(AuthenticationManager authManager, TokenRepository tokenRepository, EnvironmentProperties environmentProperties)
     {
         super(authManager);
+        this.tokenRepository = tokenRepository;
         this.environmentProperties = environmentProperties;
     }
 
@@ -53,10 +56,11 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter
         {
             SecurityContextHolder.clearContext();
 
-            AuthorizationException authorizationException = new AuthorizationException(environmentProperties.getApiVersion(), e);
+            AuthorizationException authorizationException = new AuthorizationException(
+                    environmentProperties.getTimeZone().toZoneId(), environmentProperties.getApiVersion(), e);
             JsonResponse jsonResponse = new JsonResponse(authorizationException, authorizationException.getError().getStatus());
 
-            ResponseUtil.sendJsonResponse(response, jsonResponse);
+            ResponseUtil.sendJsonResponse(environmentProperties.getTimeZone(), response, jsonResponse);
 
             log.error(e.getMessage());
             return;
@@ -71,15 +75,21 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter
         String token = request.getHeader(environmentProperties.getSecurity().getHeaderString());
         if (token != null)
         {
+            token = token.replace(environmentProperties.getSecurity().getTokenPrefix(), "");
             // parse the token.
-            String user = JWT.require(Algorithm.HMAC512(environmentProperties.getSecurity().getSecret().getBytes()))
+            String email = JWT.require(Algorithm.HMAC512(environmentProperties.getSecurity().getSecret().getBytes()))
                     .build()
                     .verify(token.replace(environmentProperties.getSecurity().getTokenPrefix(), ""))
                     .getSubject();
 
-            if (user != null)
+            if (email != null)
             {
-                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+                if (tokenRepository.getInvalidatedTokens(email).contains(token))
+                {
+                    return null;
+                }
+
+                return new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
             }
             return null;
         }

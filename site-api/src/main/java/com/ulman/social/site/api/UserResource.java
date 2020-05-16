@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.ConvertGroup;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -21,7 +22,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/users")
@@ -44,10 +48,19 @@ public class UserResource
     }
 
     @POST
-    public UserDto addUser(
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addUser(
+            @Context UriInfo uriInfo,
             @NotNull @Valid @ConvertGroup(to = OnCreate.class) UserDto userDto)
     {
-        return userService.addUser(userDto);
+        UserDto user = userService.addUser(userDto);
+
+        return Response.created(uriInfo.getBaseUriBuilder()
+                .path(UserResource.class)
+                .segment(user.getId())
+                .build())
+                .entity(user)
+                .build();
     }
 
     @GET
@@ -60,6 +73,7 @@ public class UserResource
 
     @PATCH
     @Path("/{userId}")
+    @Consumes(MediaType.APPLICATION_JSON)
     public UserDto updateUser(
             @PathParam("userId") String userId,
             @NotNull @Valid @ConvertGroup(to = OnUpdate.class) UserDto userDto)

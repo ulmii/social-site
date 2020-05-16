@@ -1,5 +1,6 @@
 package com.ulman.social.site.api.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ulman.social.site.api.validation.Base64;
 import com.ulman.social.site.api.validation.OnCreate;
@@ -13,7 +14,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -36,8 +37,10 @@ public class UserDto implements Serializable
     private String photo;
     private String description;
     private Boolean publicProfile;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     @Null(message = "Changing/Specifying creation date is forbidden")
-    private Timestamp created;
+    private Date created;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     @Null(message = "Changing/Specifying update date is forbidden")
-    private Timestamp updated;
+    private Date updated;
 }

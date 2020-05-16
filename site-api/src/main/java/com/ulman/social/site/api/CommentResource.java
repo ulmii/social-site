@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -42,6 +43,7 @@ public class CommentResource
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public CommentDto addComment(
             @PathParam("userId") String userId,
             @PathParam("postId") String postId,
@@ -63,6 +65,7 @@ public class CommentResource
 
     @PATCH
     @Path("/{commentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
     public CommentDto updateComment(
             @PathParam("userId") String userId,
             @PathParam("postId") String postId,

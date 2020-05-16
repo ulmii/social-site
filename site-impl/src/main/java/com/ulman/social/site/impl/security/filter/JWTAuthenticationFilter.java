@@ -6,7 +6,9 @@ import com.ulman.social.site.impl.configuration.EnvironmentProperties;
 import com.ulman.social.site.impl.domain.error.exception.authentication.AuthorizationException;
 import com.ulman.social.site.impl.domain.error.exception.model.JsonResponse;
 import com.ulman.social.site.impl.domain.error.exception.util.ResponseUtil;
+import com.ulman.social.site.impl.domain.mapper.UserMapper;
 import com.ulman.social.site.impl.domain.model.db.User;
+import com.ulman.social.site.impl.repository.TokenRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
@@ -29,11 +32,14 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 {
     private AuthenticationManager authenticationManager;
     private EnvironmentProperties environmentProperties;
+    private TokenRepository tokenRepository;
+    private UserMapper userMapper;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, EnvironmentProperties environmentProperties)
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, EnvironmentProperties environmentProperties, TokenRepository tokenRepository)
     {
         this.authenticationManager = authenticationManager;
         this.environmentProperties = environmentProperties;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -75,8 +81,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.addCookie(cookie);
 
+        Optional<User> user = tokenRepository.findByEmail(auth.getName());
+
         ResponseUtil
-                .sendJsonResponse(response, new JsonResponse(auth.getPrincipal(), Response.Status.OK));
+                .sendJsonResponse(environmentProperties.getTimeZone(), response, new JsonResponse(userMapper.mapExternal(user.get()), Response.Status.OK));
     }
 
     @Override
@@ -84,10 +92,16 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     {
         SecurityContextHolder.clearContext();
 
-        AuthorizationException badCredentialsException = new AuthorizationException(environmentProperties.getApiVersion(), failed);
+        AuthorizationException badCredentialsException = new AuthorizationException(
+                environmentProperties.getTimeZone().toZoneId(), environmentProperties.getApiVersion(), failed);
         JsonResponse jsonResponse = new JsonResponse(badCredentialsException, badCredentialsException.getError().getStatus());
 
         ResponseUtil
-                .sendJsonResponse(response, jsonResponse);
+                .sendJsonResponse(environmentProperties.getTimeZone(), response, jsonResponse);
+    }
+
+    public void setUserMapper(UserMapper userMapper)
+    {
+        this.userMapper = userMapper;
     }
 }

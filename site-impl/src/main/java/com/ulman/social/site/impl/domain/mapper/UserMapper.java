@@ -31,7 +31,6 @@ public class UserMapper
                 .withId(user.getId())
                 .withName(user.getName())
                 .withEmail(user.getEmail())
-                .withPassword(user.getPassword())
                 .withPhoto(imageMapper.blobToStringMapper(user.getPhoto()))
                 .withDescription(user.getDescription())
                 .withPublicProfile(user.getPublicProfile())

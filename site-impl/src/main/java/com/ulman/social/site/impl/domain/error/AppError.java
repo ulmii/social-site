@@ -2,14 +2,13 @@ package com.ulman.social.site.impl.domain.error;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
 import lombok.Getter;
 
 import javax.ws.rs.core.Response;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,27 +17,26 @@ public class AppError
 {
     private String apiVersion;
     private ErrorBlock error;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime timestamp;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    private ZonedDateTime timestamp;
 
-    private AppError()
+    private AppError(ZoneId timeZone)
     {
-        timestamp = LocalDateTime.now();
+        timestamp = ZonedDateTime.now(timeZone);
     }
 
-    public AppError(final String apiVersion, final Response.StatusType statusType, final String message, final String domain,
+    public AppError(final ZoneId timeZone, final String apiVersion, final Response.StatusType statusType, final String message, final String domain,
             final String reason, final String errorMessage)
     {
-        this();
+        this(timeZone);
         this.apiVersion = apiVersion;
         this.error = new ErrorBlock(UUID.randomUUID(), statusType.getStatusCode(), statusType, message, domain, reason, errorMessage);
     }
 
-    public AppError(final String apiVersion, final Response.StatusType statusType, final String message, final List<Error> errors)
+    public AppError(final ZoneId timeZone, final String apiVersion, final Response.StatusType statusType, final String message, final List<Error> errors)
     {
-        this();
+        this(timeZone);
         this.apiVersion = apiVersion;
         this.error = new ErrorBlock(UUID.randomUUID(), statusType.getStatusCode(), statusType, message, errors);
     }

@@ -6,8 +6,6 @@ import com.ulman.social.site.impl.domain.error.exception.authentication.UserNotL
 import com.ulman.social.site.impl.domain.error.exception.user.ImmutableUserFieldException;
 import com.ulman.social.site.impl.domain.error.exception.user.UserDoesntExistException;
 import com.ulman.social.site.impl.domain.mapper.ImageMapper;
-import com.ulman.social.site.impl.domain.mapper.PostMapper;
-import com.ulman.social.site.impl.domain.mapper.UserMapper;
 import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

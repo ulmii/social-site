@@ -20,19 +20,20 @@ import java.util.stream.StreamSupport;
 public class ConstraintViolationExceptionHandler implements ExceptionMapper<ConstraintViolationException>
 {
     public static final Response.Status STATUS = Response.Status.BAD_REQUEST;
-    private EnvironmentProperties properties;
+    private EnvironmentProperties environmentProperties;
 
     @Autowired
-    public ConstraintViolationExceptionHandler(EnvironmentProperties properties)
+    public ConstraintViolationExceptionHandler(EnvironmentProperties environmentProperties)
     {
-        this.properties = properties;
+        this.environmentProperties = environmentProperties;
     }
 
     @Override
     public Response toResponse(ConstraintViolationException e)
     {
         final AppError error = new AppError(
-                properties.getApiVersion(),
+                environmentProperties.getTimeZone().toZoneId(),
+                environmentProperties.getApiVersion(),
                 STATUS,
                 e.getMessage(),
                 prepareErrors(e)

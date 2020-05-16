@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
@@ -77,12 +78,12 @@ public class User implements Serializable
     @OneToMany
     @JoinTable(name = "savedPosts")
     private Set<Post> savedPosts;
+    @ElementCollection
+    private List<String> invalidatedTokens;
 
-    public Post addPost(Post post)
+    public void invalidateToken(String token)
     {
-        posts.add(post);
-        post.setUser(this);
-        return post;
+        invalidatedTokens.add(token);
     }
 
     public Set<User> follow(User user)

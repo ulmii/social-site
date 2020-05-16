@@ -1,15 +1,18 @@
 package com.ulman.social.site.api.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ulman.social.site.api.validation.Base64;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -24,10 +27,19 @@ public class PostDto implements Serializable
     private String id;
     @Null(message = "Changing/Specifying userId is forbidden")
     private String userId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     @Null(message = "Changing/Specifying creation date is forbidden")
-    private Timestamp created;
+    private Date created;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     @Null(message = "Changing/Specifying update date is forbidden")
-    private Timestamp updated;
+    private Date updated;
     private String description;
     private List<@NotBlank @Base64 String> photos;
+
+    @JsonIgnore
+    @AssertTrue(message = "Post must not be empty")
+    public boolean isNotEmpty()
+    {
+        return description != null || photos != null;
+    }
 }

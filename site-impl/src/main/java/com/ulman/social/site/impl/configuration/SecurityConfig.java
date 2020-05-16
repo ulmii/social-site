@@ -1,5 +1,7 @@
 package com.ulman.social.site.impl.configuration;
 
+import com.ulman.social.site.impl.domain.mapper.UserMapper;
+import com.ulman.social.site.impl.repository.TokenRepository;
 import com.ulman.social.site.impl.security.filter.JWTAuthenticationFilter;
 import com.ulman.social.site.impl.security.filter.JWTAuthorizationFilter;
 import com.ulman.social.site.impl.service.UserDetailsServiceImpl;
@@ -24,13 +26,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
     private UserDetailsService userDetailsService;
     private PasswordEncoder passwordEncoder;
     private EnvironmentProperties environmentProperties;
+    private TokenRepository tokenRepository;
+    private UserMapper userMapper;
 
     @Autowired
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder, EnvironmentProperties environmentProperties)
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder, EnvironmentProperties environmentProperties, TokenRepository tokenRepository)
     {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.environmentProperties = environmentProperties;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -38,16 +43,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
     {
         http.cors()
                 .and().csrf().disable()
-                .addFilter(new JWTAuthenticationFilter(authenticationManager(), environmentProperties))
-                .addFilter(new JWTAuthorizationFilter(authenticationManager(), environmentProperties))
+                .addFilter(getJWTAuthenticationFilter())
+                .addFilter(new JWTAuthorizationFilter(authenticationManager(), tokenRepository, environmentProperties))
                 .authorizeRequests()
-                .antMatchers("/api/v1/users", "/api/v1/users/**")
+                .antMatchers("/api/v1/users", "/api/v1/users/**", "/api/v1/logout")
                 .permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()
                 .and()
-                // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
@@ -64,5 +68,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
         return source;
+    }
+
+    @Autowired
+    public void setUserMapper(UserMapper userMapper)
+    {
+        this.userMapper = userMapper;
+    }
+
+    public JWTAuthenticationFilter getJWTAuthenticationFilter() throws Exception
+    {
+        final JWTAuthenticationFilter filter = new JWTAuthenticationFilter(authenticationManager(), environmentProperties, tokenRepository);
+        filter.setFilterProcessesUrl("/api/v1/login");
+        filter.setUserMapper(userMapper);
+        return filter;
     }
 }

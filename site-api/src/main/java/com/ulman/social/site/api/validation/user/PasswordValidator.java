@@ -15,14 +15,14 @@ public class PasswordValidator implements
     @Override
     public boolean isValid(String password, ConstraintValidatorContext context)
     {
-        if(Objects.isNull(password))
+        if (Objects.isNull(password))
         {
             return true;
         }
 
         context.disableDefaultConstraintViolation();
 
-        if(password.strip().length() < 6)
+        if (password.strip().length() < 6)
         {
             context.buildConstraintViolationWithTemplate("Password must be at least 6 characters long")
                     .addConstraintViolation();
