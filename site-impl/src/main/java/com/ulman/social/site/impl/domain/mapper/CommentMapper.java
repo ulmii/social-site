@@ -26,7 +26,6 @@ public class CommentMapper
                 .withCreated(comment.getCreated())
                 .withUpdated(comment.getUpdated())
                 .withContent(comment.getContent())
-                .withRootLevel(comment.getRootLevel())
                 .build();
     }
 

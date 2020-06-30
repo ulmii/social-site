@@ -17,5 +17,5 @@ import java.sql.Blob;
 public class BlobWrapper
 {
     @Lob
-    private Blob blob;
+    private Blob photo;
 }

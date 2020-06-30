@@ -2,6 +2,7 @@ package com.ulman.social.site.impl.configuration;
 
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
 import com.ulman.social.site.impl.repository.TokenRepository;
+import com.ulman.social.site.impl.repository.UserRepository;
 import com.ulman.social.site.impl.security.filter.JWTAuthenticationFilter;
 import com.ulman.social.site.impl.security.filter.JWTAuthorizationFilter;
 import com.ulman.social.site.impl.service.UserDetailsServiceImpl;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -27,15 +29,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
     private PasswordEncoder passwordEncoder;
     private EnvironmentProperties environmentProperties;
     private TokenRepository tokenRepository;
+    private UserRepository userRepository;
     private UserMapper userMapper;
 
     @Autowired
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder, EnvironmentProperties environmentProperties, TokenRepository tokenRepository)
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService,
+            PasswordEncoder passwordEncoder,
+            EnvironmentProperties environmentProperties,
+            TokenRepository tokenRepository,
+            UserRepository userRepository)
     {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.environmentProperties = environmentProperties;
         this.tokenRepository = tokenRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -78,7 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
 
     public JWTAuthenticationFilter getJWTAuthenticationFilter() throws Exception
     {
-        final JWTAuthenticationFilter filter = new JWTAuthenticationFilter(authenticationManager(), environmentProperties, tokenRepository);
+        final JWTAuthenticationFilter filter = new JWTAuthenticationFilter(authenticationManager(), environmentProperties, userRepository);
         filter.setFilterProcessesUrl("/api/v1/login");
         filter.setUserMapper(userMapper);
         return filter;

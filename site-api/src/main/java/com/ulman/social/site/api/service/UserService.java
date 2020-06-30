@@ -1,5 +1,6 @@
 package com.ulman.social.site.api.service;
 
+import com.ulman.social.site.api.model.CommentDto;
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,8 @@ public interface UserService
     UserDto updateUser(String id, UserDto userDto);
 
     UserDto deleteUser(String userId);
+
+    Page<CommentDto> getUserComments(String userId, int limit, int offset);
 
     Page<UserDto> getHiddenUsers(String userId, int limit, int offset);
 

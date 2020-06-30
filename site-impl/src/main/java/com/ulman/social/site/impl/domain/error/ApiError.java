@@ -1,7 +1,10 @@
 package com.ulman.social.site.impl.domain.error;
 
+import lombok.Getter;
+
 import javax.ws.rs.core.Response;
 
+@Getter
 public abstract class ApiError extends RuntimeException
 {
     private Response.StatusType statusType;
@@ -14,20 +17,5 @@ public abstract class ApiError extends RuntimeException
         this.statusType = statusType;
         this.domain = domain;
         this.errorMessage = errorMessage;
-    }
-
-    public Response.StatusType getStatusType()
-    {
-        return statusType;
-    }
-
-    public String getDomain()
-    {
-        return domain;
-    }
-
-    public String getErrorMessage()
-    {
-        return errorMessage;
     }
 }

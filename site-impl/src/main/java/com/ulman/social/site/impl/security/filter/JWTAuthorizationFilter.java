@@ -76,7 +76,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter
         if (token != null)
         {
             token = token.replace(environmentProperties.getSecurity().getTokenPrefix(), "");
-            // parse the token.
+
             String email = JWT.require(Algorithm.HMAC512(environmentProperties.getSecurity().getSecret().getBytes()))
                     .build()
                     .verify(token.replace(environmentProperties.getSecurity().getTokenPrefix(), ""))

@@ -10,7 +10,7 @@
   </parent>
   <groupId>com.ulman</groupId>
   <artifactId>site-impl</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <name>site implementation</name>
 
   <properties>
@@ -25,6 +25,10 @@
       <groupId>com.ulman</groupId>
       <artifactId>site-api</artifactId>
       <version>${api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jersey</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

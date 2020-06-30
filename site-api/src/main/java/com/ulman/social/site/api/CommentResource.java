@@ -50,6 +50,7 @@ public class CommentResource
             @NotNull @Valid CommentDto commentDto
     )
     {
+        // TODO: add 201 CREATED
         return commentService.addComment(userId, postId, commentDto);
     }
 

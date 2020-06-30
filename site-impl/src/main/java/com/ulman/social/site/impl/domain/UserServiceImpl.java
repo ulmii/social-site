@@ -1,5 +1,6 @@
 package com.ulman.social.site.impl.domain;
 
+import com.ulman.social.site.api.model.CommentDto;
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
@@ -11,8 +12,10 @@ import com.ulman.social.site.impl.domain.error.exception.user.UserAlreadyExistsE
 import com.ulman.social.site.impl.domain.error.exception.user.UserAlreadyHiddenException;
 import com.ulman.social.site.impl.domain.error.exception.user.UserAlreadySavedException;
 import com.ulman.social.site.impl.domain.error.exception.user.UserDoesntExistException;
+import com.ulman.social.site.impl.domain.mapper.CommentMapper;
 import com.ulman.social.site.impl.domain.mapper.PostMapper;
 import com.ulman.social.site.impl.domain.mapper.UserMapper;
+import com.ulman.social.site.impl.domain.model.db.Comment;
 import com.ulman.social.site.impl.domain.model.db.Post;
 import com.ulman.social.site.impl.domain.model.db.User;
 import com.ulman.social.site.impl.helper.PostHelper;
@@ -37,6 +40,7 @@ public class UserServiceImpl implements UserService
     private PasswordEncoder passwordEncoder;
     private UserMapper userMapper;
     private PostMapper postMapper;
+    private CommentMapper commentMapper;
     private UserHelper userHelper;
     private PostHelper postHelper;
 
@@ -47,6 +51,7 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public Page<UserDto> getUsers(int limit, int offset)
     {
         OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset,
@@ -107,13 +112,32 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
+    @Transactional
     public UserDto deleteUser(String userId)
     {
         User user = userHelper.authorizeAndGetUserById(userId, "Only account owners can delete their account");
+        user.getFollowing().clear();
+        user.getFollowers().clear();
+        user.getInvalidatedTokens().clear();
+        user.getHiddenPosts().clear();
+        user.getSavedPosts().clear();
+        user.getHiddenUsers().clear();
+        user.getHiddenPosts().clear();
 
         userRepository.delete(user);
 
         return userMapper.mapExternal(user);
+    }
+
+    @Override
+    public Page<CommentDto> getUserComments(String userId, int limit, int offset)
+    {
+        userHelper.authorizeAndGetUserById(userId, "Only account owners can access their comments");
+
+        OffsetPageRequest offsetPageRequest = OffsetPageRequest.of(limit, offset);
+        Page<Comment> userComments = userRepository.getUserComments(userId, offsetPageRequest);
+
+        return commentMapper.mapEntityPageIntoDtoPage(offsetPageRequest, userComments);
     }
 
     @Override
@@ -340,6 +364,12 @@ public class UserServiceImpl implements UserService
     public void setPostMapper(PostMapper postMapper)
     {
         this.postMapper = postMapper;
+    }
+
+    @Autowired
+    public void setCommentMapper(CommentMapper commentMapper)
+    {
+        this.commentMapper = commentMapper;
     }
 
     @Autowired

@@ -2,11 +2,14 @@ package com.ulman.social.site.api.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.ulman.social.site.api.validation.OnCreate;
+import com.ulman.social.site.api.validation.OnUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -28,7 +31,6 @@ public class CommentDto implements Serializable
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     @Null(message = "Changing/Specifying update date is forbidden")
     private Date updated;
-    @Null(message = "Changing/Specifying rootLevel is forbidden")
-    private Boolean rootLevel;
+    @Size(max = 256, groups = { OnCreate.class, OnUpdate.class })
     private String content;
 }

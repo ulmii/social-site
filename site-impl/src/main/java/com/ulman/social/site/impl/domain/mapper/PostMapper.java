@@ -59,7 +59,7 @@ public class PostMapper
     public List<String> mapBlobListToBase64List(List<BlobWrapper> photos)
     {
         return photos.stream()
-                .map(BlobWrapper::getBlob)
+                .map(BlobWrapper::getPhoto)
                 .map(imageMapper::blobToStringMapper)
                 .collect(Collectors.toList());
     }

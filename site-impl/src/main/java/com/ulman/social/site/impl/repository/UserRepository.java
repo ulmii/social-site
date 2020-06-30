@@ -1,5 +1,6 @@
 package com.ulman.social.site.impl.repository;
 
+import com.ulman.social.site.impl.domain.model.db.Comment;
 import com.ulman.social.site.impl.domain.model.db.Post;
 import com.ulman.social.site.impl.domain.model.db.User;
 import org.springframework.data.domain.Page;
@@ -35,4 +36,7 @@ public interface UserRepository extends PagingAndSortingRepository<User, String>
 
     @Query("SELECT user.savedPosts FROM User user WHERE user.id=(:userId)")
     Page<Post> getSavedPosts(String userId, Pageable pageable);
+
+    @Query("SELECT user.comments FROM User user WHERE user.id=(:userId)")
+    Page<Comment> getUserComments(String userId, Pageable pageable);
 }

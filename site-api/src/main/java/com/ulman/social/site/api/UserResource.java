@@ -1,5 +1,6 @@
 package com.ulman.social.site.api;
 
+import com.ulman.social.site.api.model.CommentDto;
 import com.ulman.social.site.api.model.PostDto;
 import com.ulman.social.site.api.model.UserDto;
 import com.ulman.social.site.api.service.UserService;
@@ -87,6 +88,16 @@ public class UserResource
             @PathParam("userId") String userId)
     {
         return userService.deleteUser(userId);
+    }
+
+    @GET
+    @Path("/{userId}/comments")
+    public Page<CommentDto> getUserComments(
+            @PathParam("userId") String userId,
+            @QueryParam("limit") @DefaultValue("10") Integer limit,
+            @QueryParam("offset") @DefaultValue("0") Integer offset)
+    {
+        return userService.getUserComments(userId, limit, offset);
     }
 
     @GET

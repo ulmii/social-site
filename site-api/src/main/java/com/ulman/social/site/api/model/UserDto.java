@@ -13,6 +13,7 @@ import lombok.Data;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -25,9 +26,12 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class UserDto implements Serializable
 {
     @NotBlank(groups = OnCreate.class)
+    @Size(max = 32, groups = OnCreate.class)
     private String id;
+    @Size(max = 100, groups = { OnCreate.class, OnUpdate.class })
     private String name;
     @NotBlank(groups = OnCreate.class)
+    @Size(max = 50, groups = { OnCreate.class, OnUpdate.class })
     @Email(message = "Invalid email", groups = { OnCreate.class, OnUpdate.class })
     private String email;
     @NotBlank(groups = OnCreate.class)
@@ -35,6 +39,7 @@ public class UserDto implements Serializable
     private String password;
     @Base64(groups = { OnCreate.class, OnUpdate.class })
     private String photo;
+    @Size(max = 256, groups = { OnCreate.class, OnUpdate.class })
     private String description;
     private Boolean publicProfile;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")

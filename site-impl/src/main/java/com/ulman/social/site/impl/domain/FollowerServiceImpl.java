@@ -20,9 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class FollowerServiceImpl implements FollowerService
@@ -74,7 +72,7 @@ public class FollowerServiceImpl implements FollowerService
 
     @Override
     @Transactional(noRollbackFor = PendingFollowException.class)
-    public List<UserDto> addFollower(String id, String id2)
+    public UserDto addFollower(String id, String id2)
     {
         User user = userHelper.authorizeAndGetUserById(id);
         User userToFollow = userHelper.getUserFromRepository(id2);
@@ -89,10 +87,9 @@ public class FollowerServiceImpl implements FollowerService
             throw new UserAlreadyFollowedException("Can't follow the same user twice");
         }
 
-        Set<User> users;
         if (userToFollow.getPublicProfile())
         {
-            users = user.follow(userToFollow);
+            user.follow(userToFollow);
         }
         else
         {
@@ -100,10 +97,7 @@ public class FollowerServiceImpl implements FollowerService
             throw new PendingFollowException(String.format("You must wait till user [%s] accepts the follow request", userToFollow.getId()));
         }
 
-        return users.stream()
-                .map(userMapper::mapExternal)
-                .map(userMapper::maskSensitive)
-                .collect(Collectors.toList());
+        return userMapper.maskSensitive(userMapper.mapExternal(userToFollow));
     }
 
     @Override

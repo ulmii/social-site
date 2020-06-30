@@ -41,7 +41,5 @@ public class Comment implements Serializable
     private Timestamp created;
     @UpdateTimestamp
     private Timestamp updated;
-    @Column(updatable = false)
-    private Boolean rootLevel;
     private String content;
 }

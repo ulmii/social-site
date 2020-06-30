@@ -91,11 +91,6 @@ public class CommentHelper
             throw new ImmutableCommentFieldException("Field [updated] in comment can't be updated");
         }
 
-        if (Objects.nonNull(commentDto.getRootLevel()))
-        {
-            throw new ImmutableCommentFieldException("Field [rootLevel] in comment can't be updated");
-        }
-
         if (Objects.nonNull(commentDto.getContent()))
         {
             comment.setContent(commentDto.getContent());

@@ -43,7 +43,7 @@ public class FollowingResource
 
     @PUT
     @Path("/{userToFollowId}")
-    public List<UserDto> addFollower(
+    public UserDto addFollower(
             @PathParam("userId") String userId,
             @PathParam("userToFollowId") String userToFollowId)
     {

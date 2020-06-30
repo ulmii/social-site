@@ -9,9 +9,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
@@ -52,10 +54,12 @@ public class User implements Serializable
     )
     private List<Post> posts;
     @ManyToMany
-    @JoinTable(name = "followers")
+    @JoinTable(name = "followers",
+            inverseJoinColumns = @JoinColumn(name = "follower_id"))
     private Set<User> followers;
     @ManyToMany
-    @JoinTable(name = "pendingFollowers")
+    @JoinTable(name = "pendingFollowers",
+            inverseJoinColumns = @JoinColumn(name = "pendingFollower_id"))
     private Set<User> pendingFollowers;
     @ManyToMany
     @JoinTable(name = "following")
@@ -67,18 +71,26 @@ public class User implements Serializable
     )
     private List<Comment> comments;
     @ManyToMany
-    @JoinTable(name = "hiddenUsers")
+    @JoinTable(
+            name = "hiddenUsers",
+            inverseJoinColumns = @JoinColumn(name = "hiddenUser_id"))
     private Set<User> hiddenUsers;
     @OneToMany
-    @JoinTable(name = "hiddenPosts")
+    @JoinTable(
+            name = "hiddenPosts",
+            inverseJoinColumns = @JoinColumn(name = "hiddenPost_id"))
     private Set<Post> hiddenPosts;
     @ManyToMany
-    @JoinTable(name = "savedUsers")
+    @JoinTable(
+            name = "savedUsers",
+            inverseJoinColumns = @JoinColumn(name = "savedUser_id"))
     private Set<User> savedUsers;
     @OneToMany
-    @JoinTable(name = "savedPosts")
+    @JoinTable(name = "savedPosts",
+            inverseJoinColumns = @JoinColumn(name = "savedPost_id"))
     private Set<Post> savedPosts;
     @ElementCollection
+    @Column(name = "token")
     private List<String> invalidatedTokens;
 
     public void invalidateToken(String token)
