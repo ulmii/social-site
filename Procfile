@@ -1,0 +1,1 @@
+web: java -jar site-impl/target/site-impl-0.0.1.jar
